@@ -224,6 +224,7 @@
     <string name="settings_dns_protocol_plain">DNS thường</string>
     <string name="settings_dns_protocol_doh">DoH</string>
     <string name="settings_dns_protocol_dot">DoT</string>
+    <string name="settings_dns_protocol_doq">DoQ</string>
     <string name="settings_doh_server_url">URL máy chủ DoH</string>
     <string name="settings_save_doh_url">Lưu URL DoH</string>
     <string name="settings_dot_server">Máy chủ DoT (hostname hoặc IP)</string>
@@ -231,10 +232,11 @@
     <string name="settings_upstream_dns">Máy chủ DNS</string>
     <string name="settings_fallback_dns">Máy chủ DNS dự phòng</string>
     <string name="settings_custom_dns_server">Máy chủ DNS tùy chỉnh</string>
-    <string name="settings_custom_dns_hint">Nhập IP cho DNS thường, https:// cho DoH, hoặc tls:// cho DoT</string>
+    <string name="settings_custom_dns_hint">Nhập IP cho DNS thường, https:// cho DoH, tls:// cho DoT, hoặc quic:// cho DoQ</string>
     <string name="settings_detected_plain">DNS thường</string>
     <string name="settings_detected_doh">DNS-over-HTTPS (DoH)</string>
     <string name="settings_detected_dot">DNS-over-TLS (DoT)</string>
+    <string name="settings_detected_doq">DNS-over-QUIC (DoQ)</string>
     <string name="settings_detected_protocol">Đã phát hiện: %s</string>
     <string name="settings_invalid_dns_input">Địa chỉ máy chủ DNS không hợp lệ</string>
     <string name="settings_save_custom_dns">Lưu DNS</string>
@@ -296,6 +298,7 @@
     <string name="dns_custom_cancel">Hủy</string>
     <string name="dns_select_server">Chọn máy chủ DNS</string>
     <string name="dns_doh_badge">DoH</string>
+    <string name="dns_doq_badge">DoQ</string>
 
     <!-- Widget -->
     <string name="widget_name">Bật/Tắt BlockAds</string>

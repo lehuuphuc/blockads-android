@@ -66,6 +66,7 @@ class DnsProviderViewModel(
         when (protocol) {
             DnsProtocol.DOH -> doh
             DnsProtocol.DOT -> "tls://$upstream"
+            DnsProtocol.DOQ -> "quic://${doh.removePrefix("https://")}"
             DnsProtocol.PLAIN -> upstream
         }
     }.stateIn(
@@ -117,6 +118,19 @@ class DnsProviderViewModel(
                     // Extract host from DoH URL for upstream fallback identification
                     val host = try {
                         java.net.URL(trimmed).host
+                    } catch (_: Exception) { trimmed }
+                    appPrefs.setUpstreamDns(host)
+                }
+                trimmed.startsWith("quic://", ignoreCase = true) -> {
+                    // Convert quic://host/path to https://host/path for DoH3 transport
+                    val httpsUrl = trimmed.replaceFirst("quic://", "https://", ignoreCase = true)
+                    // Ensure path exists (default to /dns-query if none)
+                    val finalUrl = if (java.net.URL(httpsUrl).path.isNullOrBlank())
+                        "$httpsUrl/dns-query" else httpsUrl
+                    appPrefs.setDnsProtocol(DnsProtocol.DOQ)
+                    appPrefs.setDohUrl(finalUrl)
+                    val host = try {
+                        java.net.URL(finalUrl).host
                     } catch (_: Exception) { trimmed }
                     appPrefs.setUpstreamDns(host)
                 }

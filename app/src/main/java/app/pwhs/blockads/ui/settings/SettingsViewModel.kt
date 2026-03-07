@@ -80,6 +80,7 @@ class SettingsViewModel(
      * - Plain DNS: IP address (e.g., "8.8.8.8")
      * - DoH: full URL (e.g., "https://dns.google/dns-query")
      * - DoT: tls:// prefix + server (e.g., "tls://dns.google")
+     * - DoQ: quic:// prefix + server (e.g., "quic://dns.adguard-dns.com/dns-query")
      */
     val customDnsDisplay: StateFlow<String> = combine(
         appPrefs.dnsProtocol,
@@ -89,6 +90,7 @@ class SettingsViewModel(
         when (protocol) {
             DnsProtocol.DOH -> doh
             DnsProtocol.DOT -> "tls://$upstream"
+            DnsProtocol.DOQ -> "quic://${doh.removePrefix("https://")}"
             DnsProtocol.PLAIN -> upstream
         }
     }.stateIn(
@@ -182,6 +184,17 @@ class SettingsViewModel(
                     // Extract host from DoH URL for upstream fallback identification
                     val host = try {
                         java.net.URL(trimmed).host
+                    } catch (_: Exception) { trimmed }
+                    appPrefs.setUpstreamDns(host)
+                }
+                trimmed.startsWith("quic://", ignoreCase = true) -> {
+                    val httpsUrl = trimmed.replaceFirst("quic://", "https://", ignoreCase = true)
+                    val finalUrl = if (java.net.URL(httpsUrl).path.isNullOrBlank())
+                        "$httpsUrl/dns-query" else httpsUrl
+                    appPrefs.setDnsProtocol(DnsProtocol.DOQ)
+                    appPrefs.setDohUrl(finalUrl)
+                    val host = try {
+                        java.net.URL(finalUrl).host
                     } catch (_: Exception) { trimmed }
                     appPrefs.setUpstreamDns(host)
                 }

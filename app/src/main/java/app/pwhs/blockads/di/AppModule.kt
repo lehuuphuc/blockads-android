@@ -6,6 +6,7 @@ import app.pwhs.blockads.data.datastore.AppPreferences
 import app.pwhs.blockads.data.repository.FilterListRepository
 import app.pwhs.blockads.data.entities.ProfileManager
 import app.pwhs.blockads.dns.DohClient
+import app.pwhs.blockads.dns.DoqClient
 import app.pwhs.blockads.dns.DotClient
 import app.pwhs.blockads.ui.dnsprovider.DnsProviderViewModel
 import app.pwhs.blockads.ui.filter.detail.FilterDetailViewModel
@@ -67,6 +68,7 @@ val appModule = module {
     // DNS Clients
     single { DohClient(get()) }
     single { DotClient() }
+    single { DoqClient(androidContext()) }
 
     // Database
     single { AppDatabase.getInstance(androidContext()) }

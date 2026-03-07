@@ -194,6 +194,7 @@
     <string name="settings_dns_protocol_plain">일반 DNS</string>
     <string name="settings_dns_protocol_doh">DoH</string>
     <string name="settings_dns_protocol_dot">DoT</string>
+    <string name="settings_dns_protocol_doq">DoQ</string>
     <string name="settings_doh_server_url">DoH 서버 URL</string>
     <string name="settings_save_doh_url">DoH URL 저장</string>
     <string name="settings_dot_server">DoT 서버 (호스트명 또는 IP)</string>
@@ -253,6 +254,7 @@
     <string name="dns_custom_cancel">취소</string>
     <string name="dns_select_server">DNS 서버 선택</string>
     <string name="dns_doh_badge">DoH</string>
+    <string name="dns_doq_badge">DoQ</string>
     <string name="widget_name">BlockAds 토글</string>
     <string name="widget_description">광고 차단 켜기/끄기 전환 및 통계 보기</string>
     <string name="widget_toggle_description">광고 차단 전환</string>
@@ -459,7 +461,7 @@
     <string name="filter_setup_active_count">%1$d active</string>
     <string name="copied_url">Copied URL</string>
     <string name="settings_custom_dns_server">Custom DNS Server</string>
-    <string name="settings_custom_dns_hint">Enter IP for Plain DNS, https:// for DoH, or tls:// for DoT</string>
+    <string name="settings_custom_dns_hint">Enter IP for Plain DNS, https:// for DoH, tls:// for DoT, or quic:// for DoQ</string>
     <string name="filter_error_invalid_url">Please enter a valid URL (http:// or https://)</string>
     <string name="filter_error_duplicate_url">This filter list already exists</string>
     <string name="filter_error_invalid_content">URL does not contain a valid filter list</string>
@@ -468,5 +470,6 @@
     <string name="settings_invalid_dns_input">Invalid DNS server address</string>
     <string name="settings_detected_doh">DNS-over-HTTPS (DoH)</string>
     <string name="settings_detected_dot">DNS-over-TLS (DoT)</string>
+    <string name="settings_detected_doq">DNS-over-QUIC (DoQ)</string>
 
 </resources>

@@ -103,6 +103,7 @@ class AdBlockVpnService : VpnService() {
     private lateinit var dnsErrorDao: DnsErrorDao
     private lateinit var dohClient: app.pwhs.blockads.dns.DohClient
     private lateinit var dotClient: app.pwhs.blockads.dns.DotClient
+    private lateinit var doqClient: app.pwhs.blockads.dns.DoqClient
     private var networkMonitor: NetworkMonitor? = null
     private val retryManager =
         VpnRetryManager(maxRetries = 5, initialDelayMs = 1000L, maxDelayMs = 60000L)
@@ -142,6 +143,7 @@ class AdBlockVpnService : VpnService() {
         dnsErrorDao = koin.get()
         dohClient = koin.get()
         dotClient = koin.get()
+        doqClient = koin.get()
         firewallRuleDao = koin.get()
         batteryMonitor = BatteryMonitor(this)
         appNameResolver = AppNameResolver(this)
@@ -739,6 +741,11 @@ class AdBlockVpnService : VpnService() {
                 DnsProtocol.DOT -> {
                     Timber.d("Using DoT for ${query.domain} to $dnsServer")
                     runBlocking { dotClient.query(dnsServer, query.rawDnsPayload) }
+                }
+
+                DnsProtocol.DOQ -> {
+                    Timber.d("Using DoQ (HTTP/3 QUIC) for ${query.domain} to $dohUrl")
+                    runBlocking { doqClient.query(dohUrl, query.rawDnsPayload) }
                 }
 
                 DnsProtocol.PLAIN -> {

@@ -194,6 +194,7 @@
     <string name="settings_dns_protocol_plain">DNS ธรรมดา</string>
     <string name="settings_dns_protocol_doh">DoH</string>
     <string name="settings_dns_protocol_dot">DoT</string>
+    <string name="settings_dns_protocol_doq">DoQ</string>
     <string name="settings_doh_server_url">URL เซิร์ฟเวอร์ DoH</string>
     <string name="settings_save_doh_url">บันทึก URL DoH</string>
     <string name="settings_dot_server">เซิร์ฟเวอร์ DoT (ชื่อโฮสต์หรือ IP)</string>
@@ -201,10 +202,11 @@
     <string name="settings_upstream_dns">เซิร์ฟเวอร์ DNS ต้นทาง</string>
     <string name="settings_fallback_dns">เซิร์ฟเวอร์ DNS สำรอง</string>
     <string name="settings_custom_dns_server">เซิร์ฟเวอร์ DNS ที่กำหนดเอง</string>
-    <string name="settings_custom_dns_hint">ป้อน IP สำหรับ DNS ธรรมดา, https:// สำหรับ DoH หรือ tls:// สำหรับ DoT</string>
+    <string name="settings_custom_dns_hint">ป้อน IP สำหรับ DNS ธรรมดา, https:// สำหรับ DoH, tls:// สำหรับ DoT หรือ quic:// สำหรับ DoQ</string>
     <string name="settings_detected_plain">DNS ธรรมดา</string>
     <string name="settings_detected_doh">DNS-over-HTTPS (DoH)</string>
     <string name="settings_detected_dot">DNS-over-TLS (DoT)</string>
+    <string name="settings_detected_doq">DNS-over-QUIC (DoQ)</string>
     <string name="settings_detected_protocol">ตรวจพบ: %s</string>
     <string name="settings_invalid_dns_input">ที่อยู่เซิร์ฟเวอร์ DNS ไม่ถูกต้อง</string>
     <string name="settings_save_custom_dns">บันทึก DNS</string>
@@ -260,6 +262,7 @@
     <string name="dns_custom_cancel">ยกเลิก</string>
     <string name="dns_select_server">เลือกเซิร์ฟเวอร์ DNS</string>
     <string name="dns_doh_badge">DoH</string>
+    <string name="dns_doq_badge">DoQ</string>
     <string name="widget_name">สลับ BlockAds</string>
     <string name="widget_description">เปิด/ปิดการบล็อกโฆษณาและดูสถิติ</string>
     <string name="widget_toggle_description">สลับการบล็อกโฆษณา</string>

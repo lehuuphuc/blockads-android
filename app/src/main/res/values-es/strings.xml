@@ -194,6 +194,7 @@
     <string name="settings_dns_protocol_plain">DNS simple</string>
     <string name="settings_dns_protocol_doh">DoH</string>
     <string name="settings_dns_protocol_dot">DoT</string>
+    <string name="settings_dns_protocol_doq">DoQ</string>
     <string name="settings_doh_server_url">URL del servidor DoH</string>
     <string name="settings_save_doh_url">Guardar URL DoH</string>
     <string name="settings_dot_server">Servidor DoT (nombre de host o IP)</string>
@@ -201,10 +202,11 @@
     <string name="settings_upstream_dns">Servidor DNS principal</string>
     <string name="settings_fallback_dns">Servidor DNS de respaldo</string>
     <string name="settings_custom_dns_server">Servidor DNS personalizado</string>
-    <string name="settings_custom_dns_hint">Introduce IP para DNS simple, https:// para DoH o tls:// para DoT</string>
+    <string name="settings_custom_dns_hint">Introduce IP para DNS simple, https:// para DoH, tls:// para DoT o quic:// para DoQ</string>
     <string name="settings_detected_plain">DNS simple</string>
     <string name="settings_detected_doh">DNS-over-HTTPS (DoH)</string>
     <string name="settings_detected_dot">DNS-over-TLS (DoT)</string>
+    <string name="settings_detected_doq">DNS-over-QUIC (DoQ)</string>
     <string name="settings_detected_protocol">Detectado: %s</string>
     <string name="settings_invalid_dns_input">Dirección de servidor DNS no válida</string>
     <string name="settings_save_custom_dns">Guardar DNS</string>
@@ -260,6 +262,7 @@
     <string name="dns_custom_cancel">Cancelar</string>
     <string name="dns_select_server">Seleccionar servidor DNS</string>
     <string name="dns_doh_badge">DoH</string>
+    <string name="dns_doq_badge">DoQ</string>
     <string name="widget_name">Control de BlockAds</string>
     <string name="widget_description">Activa o desactiva el bloqueo de anuncios y consulta las estadísticas</string>
     <string name="widget_toggle_description">Alternar bloqueo de anuncios</string>

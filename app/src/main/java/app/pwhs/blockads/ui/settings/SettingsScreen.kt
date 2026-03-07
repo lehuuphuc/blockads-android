@@ -35,11 +35,9 @@ import androidx.compose.material.icons.filled.Palette
 import androidx.compose.material.icons.filled.PhoneAndroid
 import androidx.compose.material.icons.filled.Replay
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.filled.Security
 import androidx.compose.material.icons.filled.Shield
 import androidx.compose.material.icons.filled.Storage
 import androidx.compose.material.icons.filled.Upload
-import androidx.compose.material.icons.filled.Wifi
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -48,14 +46,11 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -72,7 +67,6 @@ import androidx.core.net.toUri
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import app.pwhs.blockads.R
 import app.pwhs.blockads.data.datastore.AppPreferences
-import app.pwhs.blockads.data.entities.DnsProtocol
 import app.pwhs.blockads.ui.event.UiEventEffect
 import app.pwhs.blockads.ui.settings.component.DnsResponseTypeDialog
 import app.pwhs.blockads.ui.settings.component.FireWall
@@ -104,8 +98,6 @@ fun SettingsScreen(
     val autoReconnect by viewModel.autoReconnect.collectAsStateWithLifecycle()
     val upstreamDns by viewModel.upstreamDns.collectAsStateWithLifecycle()
     val fallbackDns by viewModel.fallbackDns.collectAsStateWithLifecycle()
-    val dnsProtocol by viewModel.dnsProtocol.collectAsStateWithLifecycle()
-    val customDnsDisplay by viewModel.customDnsDisplay.collectAsStateWithLifecycle()
     val filterLists by viewModel.filterLists.collectAsStateWithLifecycle()
     val whitelistDomains by viewModel.whitelistDomains.collectAsStateWithLifecycle()
 
@@ -123,10 +115,6 @@ fun SettingsScreen(
     val youtubeRestrictedMode by viewModel.youtubeRestrictedMode.collectAsStateWithLifecycle()
     val dailySummaryEnabled by viewModel.dailySummaryEnabled.collectAsStateWithLifecycle()
     val milestoneNotificationsEnabled by viewModel.milestoneNotificationsEnabled.collectAsStateWithLifecycle()
-
-
-    var editCustomDns by remember(customDnsDisplay) { mutableStateOf(customDnsDisplay) }
-    var editFallbackDns by remember(fallbackDns) { mutableStateOf(fallbackDns) }
 
     val exportLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.CreateDocument("application/json")
@@ -262,188 +250,6 @@ fun SettingsScreen(
                     colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
                     shape = RoundedCornerShape(16.dp)
                 ) {
-                    Column(modifier = Modifier.padding(16.dp)) {
-                        // Unified Custom DNS Input
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(
-                                Icons.Default.Dns,
-                                contentDescription = null,
-                                tint = MaterialTheme.colorScheme.secondary,
-                                modifier = Modifier.size(20.dp)
-                            )
-                            Spacer(modifier = Modifier.width(12.dp))
-                            Text(
-                                stringResource(R.string.settings_custom_dns_server),
-                                style = MaterialTheme.typography.titleSmall
-                            )
-                        }
-                        Spacer(modifier = Modifier.height(4.dp))
-                        Text(
-                            stringResource(R.string.settings_custom_dns_hint),
-                            style = MaterialTheme.typography.bodySmall,
-                            color = TextSecondary
-                        )
-                        Spacer(modifier = Modifier.height(12.dp))
-
-                        // Detect protocol from current input
-                        val detectedProtocol by remember {
-                            derivedStateOf {
-                                val input = editCustomDns.trim()
-                                when {
-                                    input.startsWith(
-                                        "https://",
-                                        ignoreCase = true
-                                    ) -> DnsProtocol.DOH
-
-                                    input.startsWith(
-                                        "tls://",
-                                        ignoreCase = true
-                                    ) -> DnsProtocol.DOT
-
-                                    input.isNotBlank() -> DnsProtocol.PLAIN
-                                    else -> null
-                                }
-                            }
-                        }
-
-                        val isValidInput by remember {
-                            derivedStateOf {
-                                val input = editCustomDns.trim()
-                                when {
-                                    input.isBlank() -> false
-                                    input.startsWith(
-                                        "https://",
-                                        ignoreCase = true
-                                    ) -> input.length > 8
-
-                                    input.startsWith(
-                                        "tls://",
-                                        ignoreCase = true
-                                    ) -> input.length > 6
-
-                                    else -> input.matches(Regex("^[\\d.]+$")) || input.matches(
-                                        Regex(
-                                            "^[a-zA-Z0-9.-]+$"
-                                        )
-                                    )
-                                }
-                            }
-                        }
-
-                        OutlinedTextField(
-                            value = editCustomDns,
-                            onValueChange = { editCustomDns = it },
-                            modifier = Modifier.fillMaxWidth(),
-                            placeholder = { Text(stringResource(R.string.settings_custom_dns_placeholder)) },
-                            singleLine = true,
-                            isError = editCustomDns.isNotBlank() && !isValidInput,
-                            supportingText = if (editCustomDns.isNotBlank() && !isValidInput) {
-                                { Text(stringResource(R.string.settings_invalid_dns_input)) }
-                            } else null,
-                            shape = RoundedCornerShape(12.dp),
-                            colors = OutlinedTextFieldDefaults.colors(
-                                focusedBorderColor = MaterialTheme.colorScheme.primary,
-                                unfocusedBorderColor = MaterialTheme.colorScheme.outline.copy(
-                                    alpha = 0.3f
-                                )
-                            )
-                        )
-
-                        // Protocol detection badge
-                        if (detectedProtocol != null && editCustomDns.isNotBlank()) {
-                            Spacer(modifier = Modifier.height(8.dp))
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                modifier = Modifier.fillMaxWidth()
-                            ) {
-                                val (icon, label, color) = when (detectedProtocol) {
-                                    DnsProtocol.DOH -> Triple(
-                                        Icons.Default.Security,
-                                        stringResource(R.string.settings_detected_doh),
-                                        MaterialTheme.colorScheme.primary
-                                    )
-
-                                    DnsProtocol.DOT -> Triple(
-                                        Icons.Default.Security,
-                                        stringResource(R.string.settings_detected_dot),
-                                        MaterialTheme.colorScheme.tertiary
-                                    )
-
-                                    else -> Triple(
-                                        Icons.Default.Wifi,
-                                        stringResource(R.string.settings_detected_plain),
-                                        TextSecondary
-                                    )
-                                }
-                                Icon(
-                                    icon,
-                                    contentDescription = null,
-                                    tint = color,
-                                    modifier = Modifier.size(16.dp)
-                                )
-                                Spacer(modifier = Modifier.width(6.dp))
-                                Text(
-                                    label,
-                                    style = MaterialTheme.typography.labelMedium,
-                                    color = color
-                                )
-                            }
-                        }
-
-                        // Save button when input has changed
-                        if (editCustomDns != customDnsDisplay && isValidInput) {
-                            Spacer(modifier = Modifier.height(8.dp))
-                            Button(
-                                onClick = { viewModel.setCustomDnsServer(editCustomDns) },
-                                modifier = Modifier.fillMaxWidth(),
-                                shape = RoundedCornerShape(12.dp),
-                                colors = ButtonDefaults.buttonColors(
-                                    containerColor = MaterialTheme.colorScheme.primary.copy(
-                                        alpha = 0.15f
-                                    ),
-                                    contentColor = MaterialTheme.colorScheme.primary
-                                )
-                            ) { Text(stringResource(R.string.settings_save_custom_dns)) }
-                        }
-
-                        // Fallback DNS (only for Plain DNS)
-                        if (dnsProtocol == DnsProtocol.PLAIN) {
-                            Spacer(modifier = Modifier.height(16.dp))
-                            Text(
-                                stringResource(R.string.settings_fallback_dns),
-                                style = MaterialTheme.typography.titleSmall
-                            )
-                            Spacer(modifier = Modifier.height(12.dp))
-                            OutlinedTextField(
-                                value = editFallbackDns,
-                                onValueChange = { editFallbackDns = it },
-                                modifier = Modifier.fillMaxWidth(),
-                                placeholder = { Text(stringResource(R.string.settings_fallback_dns_placeholder)) },
-                                singleLine = true,
-                                shape = RoundedCornerShape(12.dp),
-                                colors = OutlinedTextFieldDefaults.colors(
-                                    focusedBorderColor = MaterialTheme.colorScheme.primary,
-                                    unfocusedBorderColor = MaterialTheme.colorScheme.outline.copy(
-                                        alpha = 0.3f
-                                    )
-                                )
-                            )
-                            if (editFallbackDns != fallbackDns) {
-                                Spacer(modifier = Modifier.height(8.dp))
-                                Button(
-                                    onClick = { viewModel.setFallbackDns(editFallbackDns) },
-                                    modifier = Modifier.fillMaxWidth(),
-                                    shape = RoundedCornerShape(12.dp),
-                                    colors = ButtonDefaults.buttonColors(
-                                        containerColor = MaterialTheme.colorScheme.primary.copy(
-                                            alpha = 0.15f
-                                        ),
-                                        contentColor = MaterialTheme.colorScheme.primary
-                                    )
-                                ) { Text(stringResource(R.string.settings_save_dns)) }
-                            }
-                        }
-                    }
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()

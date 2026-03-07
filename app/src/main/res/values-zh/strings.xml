@@ -194,6 +194,7 @@
     <string name="settings_dns_protocol_plain">普通DNS</string>
     <string name="settings_dns_protocol_doh">DoH</string>
     <string name="settings_dns_protocol_dot">DoT</string>
+    <string name="settings_dns_protocol_doq">DoQ</string>
     <string name="settings_doh_server_url">DoH服务器URL</string>
     <string name="settings_save_doh_url">保存DoH URL</string>
     <string name="settings_dot_server">DoT服务器（主机名或IP）</string>
@@ -253,6 +254,7 @@
     <string name="dns_custom_cancel">取消</string>
     <string name="dns_select_server">选择DNS服务器</string>
     <string name="dns_doh_badge">DoH</string>
+    <string name="dns_doq_badge">DoQ</string>
     <string name="widget_name">BlockAds开关</string>
     <string name="widget_description">切换广告拦截开关并查看统计信息</string>
     <string name="widget_toggle_description">切换广告拦截</string>
@@ -459,13 +461,14 @@
     <string name="filter_setup_active_count">%1$d active</string>
     <string name="copied_url">Copied URL</string>
     <string name="settings_custom_dns_server">Custom DNS Server</string>
-    <string name="settings_custom_dns_hint">Enter IP for Plain DNS, https:// for DoH, or tls:// for DoT</string>
+    <string name="settings_custom_dns_hint">Enter IP for Plain DNS, https:// for DoH, tls:// for DoT, or quic:// for DoQ</string>
     <string name="filter_error_invalid_url">Please enter a valid URL (http:// or https://)</string>
     <string name="filter_error_duplicate_url">This filter list already exists</string>
     <string name="filter_error_invalid_content">URL does not contain a valid filter list</string>
     <string name="settings_detected_plain">Plain DNS</string>
     <string name="settings_detected_doh">DNS-over-HTTPS (DoH)</string>
     <string name="settings_detected_dot">DNS-over-TLS (DoT)</string>
+    <string name="settings_detected_doq">DNS-over-QUIC (DoQ)</string>
     <string name="settings_detected_protocol">Detected: %s</string>
     <string name="settings_invalid_dns_input">Invalid DNS server address</string>
 
