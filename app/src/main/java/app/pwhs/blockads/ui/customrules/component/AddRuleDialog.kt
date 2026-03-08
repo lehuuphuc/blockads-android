@@ -45,7 +45,7 @@ fun AddRuleDialog(
                     value = ruleText,
                     onValueChange = { ruleText = it },
                     label = { Text(stringResource(R.string.rule)) },
-                    placeholder = { Text("||example.com^") },
+                    placeholder = { Text("||example.com^ or *.ads.example.com") },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = false,
                     minLines = 2

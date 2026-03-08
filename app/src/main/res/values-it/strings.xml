@@ -339,11 +339,11 @@
     <string name="tap_add_to_create_rule">Tocca + per creare la tua prima regola personalizzata</string>
     <string name="rule">Regola</string>
     <string name="rules">Regole</string>
-    <string name="add_rule_hint">Inserisci una regola DNS personalizzata:\n• Blocca: ||esempio.com^ o esempio.com\n• Consenti: @@||esempio.com^\n• Commento: ! Questo è un commento</string>
+    <string name="add_rule_hint">Inserisci una regola DNS personalizzata:\n• Blocca: ||esempio.com^ o esempio.com\n• Blocca wildcard: ||*.ads.esempio.com^ o *.ads.esempio.com\n• Consenti: @@||esempio.com^\n• Commento: ! Questo è un commento</string>
     <string name="import_rules_hint">Incolla le regole (una per riga):</string>
     <string name="import_label">Importa</string>
     <string name="custom_rules_help">Aiuto Regole Personalizzate</string>
-    <string name="custom_rules_help_text">Le regole personalizzate vengono applicate prima delle liste filtri, dando loro priorità più alta.\n\nFormati supportati:\n• Blocca dominio: ||esempio.com^ o esempio.com\n• Consenti dominio: @@||esempio.com^\n• Commento: ! Questo è un commento\n\nEsempi:\n• ||ads.esempio.com^ - Blocca ads.esempio.com\n• @@||esempio.com^ - Consenti esempio.com (sovrascrive le blocklist)\n• ! Le mie regole personalizzate - Una riga di commento</string>
+    <string name="custom_rules_help_text">Le regole personalizzate vengono applicate prima delle liste filtri, dando loro priorità più alta.\n\nFormati supportati:\n• Blocca dominio: ||esempio.com^ o esempio.com\n• Blocca wildcard: ||*.ads.esempio.com^ o *.ads.esempio.com\n• Consenti dominio: @@||esempio.com^\n• Consenti wildcard: @@||*.esempio.com^\n• Commento: ! Questo è un commento\n\nEsempi:\n• ||ads.esempio.com^ - Blocca ads.esempio.com e tutti i sottodomini\n• ||*.tracker.com^ - Blocca qualsiasi sottodominio di tracker.com (ma non tracker.com stesso)\n• @@||esempio.com^ - Consenti esempio.com (sovrascrive le blocklist)\n• *.ads.esempio.com - Blocca x.ads.esempio.com, y.ads.esempio.com, ecc.\n• ! Le mie regole personalizzate - Una riga di commento</string>
     <string name="add">Aggiungi</string>
     <string name="delete">Elimina</string>
     <string name="cancel">Annulla</string>

@@ -282,11 +282,11 @@
     <string name="tap_add_to_create_rule">点击 + 创建您的第一条自定义规则</string>
     <string name="rule">规则</string>
     <string name="rules">规则</string>
-    <string name="add_rule_hint">输入自定义DNS规则：\n• 拦截：||example.com^ 或 example.com\n• 允许：@@||example.com^\n• 注释：! 这是一条注释</string>
+    <string name="add_rule_hint">输入自定义DNS规则：\n• 拦截：||example.com^ 或 example.com\n• 通配符拦截：||*.ads.example.com^ 或 *.ads.example.com\n• 允许：@@||example.com^\n• 注释：! 这是一条注释</string>
     <string name="import_rules_hint">粘贴规则（每行一条）：</string>
     <string name="import_label">导入</string>
     <string name="custom_rules_help">自定义规则帮助</string>
-    <string name="custom_rules_help_text">自定义规则的优先级高于过滤列表。\n\n支持的格式：\n• 拦截域名：||example.com^ 或 example.com\n• 允许域名：@@||example.com^\n• 注释：! 这是一条注释\n\n示例：\n• ||ads.example.com^ - 拦截 ads.example.com\n• @@||example.com^ - 允许 example.com（覆盖拦截列表）\n• ! 我的自定义规则 - 注释行</string>
+    <string name="custom_rules_help_text">自定义规则的优先级高于过滤列表。\n\n支持的格式：\n• 拦截域名：||example.com^ 或 example.com\n• 通配符拦截：||*.ads.example.com^ 或 *.ads.example.com\n• 允许域名：@@||example.com^\n• 通配符允许：@@||*.example.com^\n• 注释：! 这是一条注释\n\n示例：\n• ||ads.example.com^ - 拦截 ads.example.com 及所有子域名\n• ||*.tracker.com^ - 拦截 tracker.com 的所有子域名（不含 tracker.com 本身）\n• @@||example.com^ - 允许 example.com（覆盖拦截列表）\n• *.ads.example.com - 拦截 x.ads.example.com、y.ads.example.com 等\n• ! 我的自定义规则 - 注释行</string>
     <string name="add">添加</string>
     <string name="delete">删除</string>
     <string name="cancel">取消</string>

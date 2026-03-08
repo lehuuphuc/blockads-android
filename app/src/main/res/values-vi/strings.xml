@@ -337,11 +337,11 @@
     <string name="tap_add_to_create_rule">Nhấn + để tạo quy tắc đầu tiên</string>
     <string name="rule">Quy tắc</string>
     <string name="rules">Quy tắc</string>
-    <string name="add_rule_hint">Nhập quy tắc DNS tùy chỉnh:\n• Chặn: ||example.com^ hoặc example.com\n• Cho phép: @@||example.com^\n• Ghi chú: ! Đây là ghi chú</string>
+    <string name="add_rule_hint">Nhập quy tắc DNS tùy chỉnh:\n• Chặn: ||example.com^ hoặc example.com\n• Chặn wildcard: ||*.ads.example.com^ hoặc *.ads.example.com\n• Cho phép: @@||example.com^\n• Ghi chú: ! Đây là ghi chú</string>
     <string name="import_rules_hint">Dán quy tắc (mỗi dòng một quy tắc):</string>
     <string name="import_label">Nhập</string>
     <string name="custom_rules_help">Trợ Giúp Quy Tắc</string>
-    <string name="custom_rules_help_text">Quy tắc tùy chỉnh được áp dụng trước danh sách bộ lọc, có ưu tiên cao hơn.\n\nĐịnh dạng hỗ trợ:\n• Chặn tên miền: ||example.com^ hoặc example.com\n• Cho phép tên miền: @@||example.com^\n• Ghi chú: ! Đây là ghi chú\n\nVí dụ:\n• ||ads.example.com^ - Chặn ads.example.com\n• @@||example.com^ - Cho phép example.com (ghi đè blocklist)\n• ! Quy tắc của tôi - Dòng ghi chú</string>
+    <string name="custom_rules_help_text">Quy tắc tùy chỉnh được áp dụng trước danh sách bộ lọc, có ưu tiên cao hơn.\n\nĐịnh dạng hỗ trợ:\n• Chặn tên miền: ||example.com^ hoặc example.com\n• Chặn wildcard: ||*.ads.example.com^ hoặc *.ads.example.com\n• Cho phép tên miền: @@||example.com^\n• Cho phép wildcard: @@||*.example.com^\n• Ghi chú: ! Đây là ghi chú\n\nVí dụ:\n• ||ads.example.com^ - Chặn ads.example.com và tất cả tên miền con\n• ||*.tracker.com^ - Chặn mọi tên miền con của tracker.com (nhưng không chặn tracker.com)\n• @@||example.com^ - Cho phép example.com (ghi đè blocklist)\n• *.ads.example.com - Chặn x.ads.example.com, y.ads.example.com, v.v.\n• ! Quy tắc của tôi - Dòng ghi chú</string>
     <string name="add">Thêm</string>
     <string name="delete">Xóa</string>
     <string name="cancel">Hủy</string>

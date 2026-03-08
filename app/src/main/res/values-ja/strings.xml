@@ -290,11 +290,11 @@
     <string name="tap_add_to_create_rule">+ をタップして最初のカスタムルールを作成してください</string>
     <string name="rule">ルール</string>
     <string name="rules">ルール</string>
-    <string name="add_rule_hint">カスタムDNSルールを入力:\n• ブロック: ||example.com^ または example.com\n• 許可: @@||example.com^\n• コメント: ! これはコメントです</string>
+    <string name="add_rule_hint">カスタムDNSルールを入力:\n• ブロック: ||example.com^ または example.com\n• ワイルドカードブロック: ||*.ads.example.com^ または *.ads.example.com\n• 許可: @@||example.com^\n• コメント: ! これはコメントです</string>
     <string name="import_rules_hint">ルールを貼り付け (1行に1つ):</string>
     <string name="import_label">インポート</string>
     <string name="custom_rules_help">カスタムルールのヘルプ</string>
-    <string name="custom_rules_help_text">カスタムルールはフィルターリストよりも優先して適用されます。\n\n対応フォーマット:\n• ドメインをブロック: ||example.com^ または example.com\n• ドメインを許可: @@||example.com^\n• コメント: ! これはコメントです\n\n例:\n• ||ads.example.com^ - ads.example.comをブロック\n• @@||example.com^ - example.comを許可 (ブロックリストを上書き)\n• ! 自分のカスタムルール - コメント行</string>
+    <string name="custom_rules_help_text">カスタムルールはフィルターリストよりも優先して適用されます。\n\n対応フォーマット:\n• ドメインをブロック: ||example.com^ または example.com\n• ワイルドカードブロック: ||*.ads.example.com^ または *.ads.example.com\n• ドメインを許可: @@||example.com^\n• ワイルドカード許可: @@||*.example.com^\n• コメント: ! これはコメントです\n\n例:\n• ||ads.example.com^ - ads.example.comとすべてのサブドメインをブロック\n• ||*.tracker.com^ - tracker.comのサブドメインをブロック（tracker.com自体は除く）\n• @@||example.com^ - example.comを許可 (ブロックリストを上書き)\n• *.ads.example.com - x.ads.example.com、y.ads.example.comなどをブロック\n• ! 自分のカスタムルール - コメント行</string>
     <string name="add">追加</string>
     <string name="delete">削除</string>
     <string name="cancel">キャンセル</string>

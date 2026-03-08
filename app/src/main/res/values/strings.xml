@@ -344,11 +344,11 @@
     <string name="tap_add_to_create_rule">Tap + to create your first custom rule</string>
     <string name="rule">Rule</string>
     <string name="rules">Rules</string>
-    <string name="add_rule_hint">Enter a custom DNS rule:\n• Block: ||example.com^ or example.com\n• Allow: @@||example.com^\n• Comment: ! This is a comment</string>
+    <string name="add_rule_hint">Enter a custom DNS rule:\n• Block: ||example.com^ or example.com\n• Block wildcard: ||*.ads.example.com^ or *.ads.example.com\n• Allow: @@||example.com^\n• Comment: ! This is a comment</string>
     <string name="import_rules_hint">Paste rules (one per line):</string>
     <string name="import_label">Import</string>
     <string name="custom_rules_help">Custom Rules Help</string>
-    <string name="custom_rules_help_text">Custom rules are applied before filter lists, giving them higher priority.\n\nSupported formats:\n• Block domain: ||example.com^ or example.com\n• Allow domain: @@||example.com^\n• Comment: ! This is a comment\n\nExamples:\n• ||ads.example.com^ - Blocks ads.example.com\n• @@||example.com^ - Allows example.com (overrides blocklists)\n• ! My custom rules - A comment line</string>
+    <string name="custom_rules_help_text">Custom rules are applied before filter lists, giving them higher priority.\n\nSupported formats:\n• Block domain: ||example.com^ or example.com\n• Block wildcard: ||*.ads.example.com^ or *.ads.example.com\n• Allow domain: @@||example.com^\n• Allow wildcard: @@||*.example.com^\n• Comment: ! This is a comment\n\nExamples:\n• ||ads.example.com^ - Blocks ads.example.com and all subdomains\n• ||*.tracker.com^ - Blocks any subdomain of tracker.com (but not tracker.com itself)\n• @@||example.com^ - Allows example.com (overrides blocklists)\n• *.ads.example.com - Blocks x.ads.example.com, y.ads.example.com, etc.\n• ! My custom rules - A comment line</string>
     <string name="add">Add</string>
     <string name="delete">Delete</string>
     <string name="cancel">Cancel</string>

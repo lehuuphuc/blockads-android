@@ -337,11 +337,11 @@
     <string name="tap_add_to_create_rule">Нажмите +, чтобы создать первое правило</string>
     <string name="rule">Правило</string>
     <string name="rules">Правила</string>
-    <string name="add_rule_hint">Введите пользовательское DNS-правило:\n• Блокировать: ||example.com^ или example.com\n• Разрешить: @@||example.com^\n• Комментарий: ! Это комментарий</string>
+    <string name="add_rule_hint">Введите пользовательское DNS-правило:\n• Блокировать: ||example.com^ или example.com\n• Блокировать по маске: ||*.ads.example.com^ или *.ads.example.com\n• Разрешить: @@||example.com^\n• Комментарий: ! Это комментарий</string>
     <string name="import_rules_hint">Вставьте правила (по одному на строку):</string>
     <string name="import_label">Импорт</string>
     <string name="custom_rules_help">Справка по правилам</string>
-    <string name="custom_rules_help_text">Пользовательские правила применяются раньше списков фильтров, поэтому имеют более высокий приоритет.\n\nПоддерживаемые форматы:\n• Блокировка домена: ||example.com^ или example.com\n• Разрешение домена: @@||example.com^\n• Комментарий: ! Это комментарий\n\nПримеры:\n• ||ads.example.com^ - Блокирует ads.example.com\n• @@||example.com^ - Разрешает example.com (переопределяет блок-листы)\n• ! Мои правила - Строка комментария</string>
+    <string name="custom_rules_help_text">Пользовательские правила применяются раньше списков фильтров, поэтому имеют более высокий приоритет.\n\nПоддерживаемые форматы:\n• Блокировка домена: ||example.com^ или example.com\n• Блокировка по маске: ||*.ads.example.com^ или *.ads.example.com\n• Разрешение домена: @@||example.com^\n• Разрешение по маске: @@||*.example.com^\n• Комментарий: ! Это комментарий\n\nПримеры:\n• ||ads.example.com^ - Блокирует ads.example.com и все поддомены\n• ||*.tracker.com^ - Блокирует любой поддомен tracker.com (но не сам tracker.com)\n• @@||example.com^ - Разрешает example.com (переопределяет блок-листы)\n• *.ads.example.com - Блокирует x.ads.example.com, y.ads.example.com и т.д.\n• ! Мои правила - Строка комментария</string>
     <string name="add">Добавить</string>
     <string name="delete">Удалить</string>
     <string name="cancel">Отмена</string>

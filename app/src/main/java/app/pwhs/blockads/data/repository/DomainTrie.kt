@@ -75,22 +75,35 @@ class DomainTrie {
     }
 
     /**
-     * Check if a domain or any of its parent domains is in the trie.
+     * Check if a domain or any of its parent domains is in the trie,
+     * with support for wildcard `*` labels.
      *
      * For "sub.ads.google.com", checks:
      * 1. While traversing com → google: if "google.com" is terminal → true
      * 2. Continue to ads: if "ads.google.com" is terminal → true
      * 3. Continue to sub: if "sub.ads.google.com" is terminal → true
      *
-     * This replaces the old checkDomainAndParents() loop with a single
-     * tree traversal — more efficient for deep subdomains.
+     * Wildcard: if a `*` child exists at any level, it matches any label.
+     * E.g., rule "*.ads.google.com" matches "x.ads.google.com" but NOT "ads.google.com".
      */
     fun containsOrParent(domain: String): Boolean {
         val labels = domain.split('.')
-        var node = root
-        for (i in labels.lastIndex downTo 0) {
-            node = node.getChild(labels[i]) ?: return false
-            if (node.isTerminal) return true
+        return matchWithWildcard(root, labels, labels.lastIndex)
+    }
+
+    private fun matchWithWildcard(node: TrieNode, labels: List<String>, index: Int): Boolean {
+        if (index < 0) return false
+        // Try exact label match
+        val exactChild = node.getChild(labels[index])
+        if (exactChild != null) {
+            if (exactChild.isTerminal) return true
+            if (matchWithWildcard(exactChild, labels, index - 1)) return true
+        }
+        // Try wildcard `*` match (matches any single label)
+        val wildcardChild = node.getChild("*")
+        if (wildcardChild != null) {
+            if (wildcardChild.isTerminal) return true
+            if (matchWithWildcard(wildcardChild, labels, index - 1)) return true
         }
         return false
     }
@@ -290,20 +303,28 @@ class MmapDomainTrie(
     val size: Int get() = domainCount
 
     /**
-     * Check if a domain or any parent domain exists in the trie.
+     * Check if a domain or any parent domain exists in the trie,
+     * with support for wildcard `*` labels.
      * Reads directly from the memory-mapped buffer.
      */
     fun containsOrParent(domain: String): Boolean {
         val labels = domain.split('.')
-        var nodeOffset = headerSize // root node starts after header
+        return matchWithWildcard(headerSize, labels, labels.lastIndex)
+    }
 
-        for (i in labels.lastIndex downTo 0) {
-            val label = labels[i]
-            val childOffset = findChildOffset(nodeOffset, label) ?: return false
-            nodeOffset = childOffset
-
-            // Check if this node is terminal (parent domain match)
-            if (isTerminal(nodeOffset)) return true
+    private fun matchWithWildcard(nodeOffset: Int, labels: List<String>, index: Int): Boolean {
+        if (index < 0) return false
+        // Try exact label match
+        val exactOffset = findChildOffset(nodeOffset, labels[index])
+        if (exactOffset != null) {
+            if (isTerminal(exactOffset)) return true
+            if (matchWithWildcard(exactOffset, labels, index - 1)) return true
+        }
+        // Try wildcard `*` match (matches any single label)
+        val wildcardOffset = findChildOffset(nodeOffset, "*")
+        if (wildcardOffset != null) {
+            if (isTerminal(wildcardOffset)) return true
+            if (matchWithWildcard(wildcardOffset, labels, index - 1)) return true
         }
         return false
     }

@@ -77,6 +77,15 @@ class DohClient {
         return builder.build()
     }
 
+    /**
+     * Clear all idle HTTP connections from the pool.
+     * Call this when DNS settings change (e.g., switching providers)
+     * to prevent stale HTTP/2 connections to old DNS servers being reused.
+     */
+    fun clearConnectionPool() {
+        okHttpClient?.connectionPool?.evictAll()
+    }
+
     private fun getClient(): OkHttpClient = okHttpClient ?: defaultClient
 
     /**

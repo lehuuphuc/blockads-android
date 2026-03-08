@@ -290,11 +290,11 @@
     <string name="tap_add_to_create_rule">แตะ + เพื่อสร้างกฎที่กำหนดเองรายการแรก</string>
     <string name="rule">กฎ</string>
     <string name="rules">กฎ</string>
-    <string name="add_rule_hint">ป้อนกฎ DNS ที่กำหนดเอง:\n• บล็อก: ||example.com^ หรือ example.com\n• อนุญาต: @@||example.com^\n• คอมเมนต์: ! นี่คือคอมเมนต์</string>
+    <string name="add_rule_hint">ป้อนกฎ DNS ที่กำหนดเอง:\n• บล็อก: ||example.com^ หรือ example.com\n• บล็อกไวลด์การ์ด: ||*.ads.example.com^ หรือ *.ads.example.com\n• อนุญาต: @@||example.com^\n• คอมเมนต์: ! นี่คือคอมเมนต์</string>
     <string name="import_rules_hint">วางกฎ (บรรทัดละ 1 กฎ):</string>
     <string name="import_label">นำเข้า</string>
     <string name="custom_rules_help">วิธีใช้กฎที่กำหนดเอง</string>
-    <string name="custom_rules_help_text">กฎที่กำหนดเองจะถูกนำไปใช้โดยมีความสำคัญเหนือรายการตัวกรอง\n\nรูปแบบที่รองรับ:\n• บล็อกโดเมน: ||example.com^ หรือ example.com\n• อนุญาตโดเมน: @@||example.com^\n• คอมเมนต์: ! นี่คือคอมเมนต์\n\nตัวอย่าง:\n• ||ads.example.com^ - บล็อก ads.example.com\n• @@||example.com^ - อนุญาต example.com (แทนที่รายการบล็อก)\n• ! กฎที่กำหนดเองของฉัน - บรรทัดคอมเมนต์</string>
+    <string name="custom_rules_help_text">กฎที่กำหนดเองจะถูกนำไปใช้โดยมีความสำคัญเหนือรายการตัวกรอง\n\nรูปแบบที่รองรับ:\n• บล็อกโดเมน: ||example.com^ หรือ example.com\n• บล็อกไวลด์การ์ด: ||*.ads.example.com^ หรือ *.ads.example.com\n• อนุญาตโดเมน: @@||example.com^\n• อนุญาตไวลด์การ์ด: @@||*.example.com^\n• คอมเมนต์: ! นี่คือคอมเมนต์\n\nตัวอย่าง:\n• ||ads.example.com^ - บล็อก ads.example.com และทุกซับโดเมน\n• ||*.tracker.com^ - บล็อกทุกซับโดเมนของ tracker.com (แต่ไม่บล็อก tracker.com เอง)\n• @@||example.com^ - อนุญาต example.com (แทนที่รายการบล็อก)\n• *.ads.example.com - บล็อก x.ads.example.com, y.ads.example.com ฯลฯ\n• ! กฎที่กำหนดเองของฉัน - บรรทัดคอมเมนต์</string>
     <string name="add">เพิ่ม</string>
     <string name="delete">ลบ</string>
     <string name="cancel">ยกเลิก</string>

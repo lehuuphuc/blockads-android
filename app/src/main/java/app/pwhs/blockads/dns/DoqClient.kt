@@ -341,7 +341,7 @@ class DoqClient {
     /**
      * Reset the connection (e.g., after an error).
      */
-    private fun resetConnection() {
+    fun resetConnection() {
         connectionLock.withLock {
             closeConnectionQuietly(cachedConnection)
             cachedConnection = null

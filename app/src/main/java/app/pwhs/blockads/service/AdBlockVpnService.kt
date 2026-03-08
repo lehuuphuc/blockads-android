@@ -251,6 +251,11 @@ class AdBlockVpnService : VpnService() {
         // Brief delay to let old VPN resources (file descriptors, sockets) clean up
         serviceScope.launch {
             delay(RESTART_CLEANUP_DELAY_MS)
+
+            // Clear stale connections to old DNS servers
+            dohClient.clearConnectionPool()
+            doqClient.resetConnection()
+
             isRestarting = false
             startVpn()
         }

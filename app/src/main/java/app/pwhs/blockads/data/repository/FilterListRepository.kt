@@ -235,6 +235,8 @@ class FilterListRepository(
         while (d.contains('.')) {
             d = d.substringAfter('.')
             if (checker(d)) return true
+            // Check wildcard: *.remaining (e.g., *.example.com matches sub.example.com)
+            if (checker("*.$d")) return true
         }
         return false
     }
@@ -710,7 +712,11 @@ class FilterListRepository(
                     }
 
                     line.contains('.') && !line.contains(' ') && !line.contains('/') -> {
-                        trie.add(line.lowercase())
+                        // Allow wildcards (e.g., *.ads.example.com) and regular domains
+                        val normalized = line.lowercase()
+                        if (normalized.all { c -> c.isLetterOrDigit() || c == '.' || c == '-' || c == '_' || c == '*' }) {
+                            trie.add(normalized)
+                        }
                     }
                 }
             }

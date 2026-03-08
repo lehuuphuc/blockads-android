@@ -10,7 +10,9 @@ object CustomRuleParser {
      * 
      * Supported formats:
      * - Block: `||example.com^` or `example.com`
+     * - Block wildcard: `||*.ads.example.com^` or `*.ads.example.com`
      * - Allow: `@@||example.com^`
+     * - Allow wildcard: `@@||*.example.com^`
      * - Comment: `! This is a comment`
      * 
      * @param ruleText The raw rule text
@@ -94,14 +96,17 @@ object CustomRuleParser {
     /**
      * Basic domain validation.
      * Checks if the string looks like a valid domain name.
+     * Supports wildcard `*` as a standalone label (e.g., *.example.com).
      */
     private fun isValidDomain(domain: String): Boolean {
         if (domain.isEmpty()) return false
         if (domain.startsWith(".") || domain.endsWith(".")) return false
         if (domain.contains("..")) return false
         
-        // Basic regex for domain validation
-        val domainRegex = Regex("^[a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])?(\\.[a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])?)*$")
+        // Allow wildcard `*` as a standalone label, plus normal domain chars
+        // Valid: *.example.com, *.*.example.com, example.com
+        // Invalid: a*b.com, *com, .*.com
+        val domainRegex = Regex("^(\\*\\.)*[a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])?(\\.[a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])?)*$")
         return domainRegex.matches(domain)
     }
     

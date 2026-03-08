@@ -290,11 +290,11 @@
     <string name="tap_add_to_create_rule">Toca + para crear tu primera regla personalizada</string>
     <string name="rule">Regla</string>
     <string name="rules">Reglas</string>
-    <string name="add_rule_hint">Introduce una regla DNS personalizada:\n• Bloquear: ||example.com^ o example.com\n• Permitir: @@||example.com^\n• Comentario: ! Esto es un comentario</string>
+    <string name="add_rule_hint">Introduce una regla DNS personalizada:\n• Bloquear: ||example.com^ o example.com\n• Bloquear comodín: ||*.ads.example.com^ o *.ads.example.com\n• Permitir: @@||example.com^\n• Comentario: ! Esto es un comentario</string>
     <string name="import_rules_hint">Pega las reglas (una por línea):</string>
     <string name="import_label">Importar</string>
     <string name="custom_rules_help">Ayuda sobre reglas personalizadas</string>
-    <string name="custom_rules_help_text">Las reglas personalizadas tienen prioridad sobre las listas de filtros.\n\nFormatos compatibles:\n• Bloquear dominio: ||example.com^ o example.com\n• Permitir dominio: @@||example.com^\n• Comentario: ! Esto es un comentario\n\nEjemplos:\n• ||ads.example.com^ - Bloquea ads.example.com\n• @@||example.com^ - Permite example.com (anula la lista de bloqueo)\n• ! Mi regla personalizada - Línea de comentario</string>
+    <string name="custom_rules_help_text">Las reglas personalizadas tienen prioridad sobre las listas de filtros.\n\nFormatos compatibles:\n• Bloquear dominio: ||example.com^ o example.com\n• Bloquear comodín: ||*.ads.example.com^ o *.ads.example.com\n• Permitir dominio: @@||example.com^\n• Permitir comodín: @@||*.example.com^\n• Comentario: ! Esto es un comentario\n\nEjemplos:\n• ||ads.example.com^ - Bloquea ads.example.com y todos los subdominios\n• ||*.tracker.com^ - Bloquea cualquier subdominio de tracker.com (pero no tracker.com)\n• @@||example.com^ - Permite example.com (anula la lista de bloqueo)\n• *.ads.example.com - Bloquea x.ads.example.com, y.ads.example.com, etc.\n• ! Mi regla personalizada - Línea de comentario</string>
     <string name="add">Añadir</string>
     <string name="delete">Eliminar</string>
     <string name="cancel">Cancelar</string>
