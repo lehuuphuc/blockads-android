@@ -83,11 +83,21 @@ object DnsProviders {
         description = "Cloudflare DNS with malware and adult content blocking"
     )
 
+    val MULLVAD = DnsProvider(
+        id = "mullvad",
+        name = "Mullvad DNS",
+        category = DnsCategory.PRIVACY,
+        ipAddress = "194.242.2.2",
+        dohUrl = "https://dns.mullvad.net/dns-query",
+        description = "Audited no-logging DNS by Mullvad VPN"
+    )
+
     val ALL_PROVIDERS = listOf(
         ADGUARD,
         CLOUDFLARE,
         CLOUDFLARE_FAMILY,
         GOOGLE,
+        MULLVAD,
         OPENDNS,
         OPENDNS_FAMILY,
         QUAD9
