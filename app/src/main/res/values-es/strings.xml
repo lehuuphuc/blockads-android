@@ -8,7 +8,6 @@
     <string name="vpn_notification_reconnecting_text">La red ha cambiado. Reconectando VPN…</string>
     <string name="vpn_notification_retrying">BlockAds está reintentando</string>
     <string name="vpn_notification_retry_text">Reintento %1$d de %2$d</string>
-    <string name="vpn_notification_stats_text">Bloqueados %1$d | Consultas %2$d | Tiempo activo %3$s</string>
     <string name="vpn_alert_channel_name">Alertas de VPN</string>
     <string name="vpn_alert_channel_description">Alertas importantes sobre cambios en el estado de la VPN</string>
     <string name="vpn_revoked_title">El bloqueo de anuncios se ha detenido</string>

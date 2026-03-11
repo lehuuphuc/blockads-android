@@ -8,7 +8,6 @@
     <string name="vpn_notification_reconnecting_text">เครือข่ายเปลี่ยนแปลง กำลังเชื่อมต่อ VPN ใหม่…</string>
     <string name="vpn_notification_retrying">BlockAds กำลังลองใหม่</string>
     <string name="vpn_notification_retry_text">ลองใหม่ครั้งที่ %1$d / %2$d</string>
-    <string name="vpn_notification_stats_text">บล็อก %1$d | คิวรี %2$d | เวลาทำงาน %3$s</string>
     <string name="vpn_alert_channel_name">การแจ้งเตือน VPN</string>
     <string name="vpn_alert_channel_description">การแจ้งเตือนสำคัญเกี่ยวกับการเปลี่ยนแปลงสถานะ VPN</string>
     <string name="vpn_revoked_title">การบล็อกโฆษณาหยุดทำงาน</string>

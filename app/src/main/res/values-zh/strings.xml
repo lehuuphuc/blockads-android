@@ -8,7 +8,6 @@
     <string name="vpn_notification_reconnecting_text">网络已更改。正在重新连接VPN…</string>
     <string name="vpn_notification_retrying">BlockAds 正在重试</string>
     <string name="vpn_notification_retry_text">重试 %1$d / %2$d 次</string>
-    <string name="vpn_notification_stats_text">已拦截 %1$d | 查询 %2$d | 运行时间 %3$s</string>
     <string name="vpn_alert_channel_name">VPN警报</string>
     <string name="vpn_alert_channel_description">关于VPN状态变更的重要警报</string>
     <string name="vpn_revoked_title">广告拦截已停止</string>

@@ -461,7 +461,6 @@
     <string name="widget_protected">محمي</string>
     <string name="widget_toggle_description">تبديل حظر الإعلانات</string>
     <string name="widget_unprotected">إيقاف</string>
-    <string name="vpn_notification_stats_text">محظور %1$d | طلبات %2$d | وقت التشغيل %3$s</string>
     <string name="onboarding_title_2">خصوصيتك محمية</string>
     <string name="onboarding_desc_2">لا جمع للبيانات. لا تتبع. جميع سجلات DNS تبقى على جهازك فقط. لن نرى نشاط التصفح الخاص بك أبداً.</string>
     <string name="onboarding_title_3">مجاني ومفتوح المصدر</string>

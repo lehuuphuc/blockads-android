@@ -8,7 +8,6 @@
     <string name="vpn_notification_reconnecting_text">ネットワークが変更されました。VPNを再接続中…</string>
     <string name="vpn_notification_retrying">BlockAdsは再試行中です</string>
     <string name="vpn_notification_retry_text">再試行 %1$d / %2$d 回目</string>
-    <string name="vpn_notification_stats_text">ブロック %1$d | クエリ %2$d | 稼働時間 %3$s</string>
     <string name="vpn_alert_channel_name">VPNアラート</string>
     <string name="vpn_alert_channel_description">VPNステータス変更に関する重要なアラート</string>
     <string name="vpn_revoked_title">広告ブロックが停止しました</string>

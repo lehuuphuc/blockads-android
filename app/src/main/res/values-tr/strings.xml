@@ -9,7 +9,6 @@
     <string name="vpn_notification_reconnecting_text">"Ağ değişti, VPN bağlantısı yeniden kuruluyor…"</string>
     <string name="vpn_notification_retrying">"BlockAds yeniden deniyor."</string>
     <string name="vpn_notification_retry_text">"Yeniden deneme girişimi %1$d / %2$d"</string>
-    <string name="vpn_notification_stats_text">"Engellenen %1$d | Sorgular %2$d | Çalışma Süresi %3$d"</string>
     <string name="vpn_alert_channel_name">"VPN Uyarıları"</string>
     <string name="vpn_alert_channel_description">"VPN durum değişiklikleriyle ilgili önemli uyarılar"</string>
     <string name="vpn_revoked_title">"Reklam engelleme durduruldu"</string>

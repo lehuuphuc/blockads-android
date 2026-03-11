@@ -8,7 +8,6 @@
     <string name="vpn_notification_reconnecting_text">네트워크가 변경되어 VPN을 재연결하는 중…</string>
     <string name="vpn_notification_retrying">BlockAds 재시도 중</string>
     <string name="vpn_notification_retry_text">재시도 %1$d / %2$d</string>
-    <string name="vpn_notification_stats_text">차단 %1$d | 쿼리 %2$d | 가동 시간 %3$s</string>
     <string name="vpn_alert_channel_name">VPN 알림</string>
     <string name="vpn_alert_channel_description">VPN 상태 변경에 대한 중요 알림</string>
     <string name="vpn_revoked_title">광고 차단이 중지되었습니다</string>
