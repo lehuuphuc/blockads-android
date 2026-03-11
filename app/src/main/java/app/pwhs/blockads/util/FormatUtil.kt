@@ -99,7 +99,7 @@ fun formatDays(daysOfWeek: String): String {
     else days.mapNotNull { if (it in 1..7) dayNames[it - 1] else null }.joinToString(", ")
 }
 
-fun profileIcon(type: String): ImageVector = when (type) {
+fun profileIcon(type: String?): ImageVector = when (type) {
     ProtectionProfile.TYPE_DEFAULT -> Icons.Default.GppGood
     ProtectionProfile.TYPE_STRICT -> Icons.Default.Security
     ProtectionProfile.TYPE_FAMILY -> Icons.Default.FamilyRestroom
@@ -119,11 +119,11 @@ fun profileDescription(type: String): String = when (type) {
 }
 
 @Composable
-fun profileDisplayName(profile: ProtectionProfile): String = when (profile.profileType) {
+fun profileDisplayName(profile: ProtectionProfile?): String = when (profile?.profileType) {
     ProtectionProfile.TYPE_DEFAULT -> stringResource(R.string.profile_name_default)
     ProtectionProfile.TYPE_STRICT -> stringResource(R.string.profile_name_strict)
     ProtectionProfile.TYPE_FAMILY -> stringResource(R.string.profile_name_family)
-    ProtectionProfile.TYPE_STRICT_FAMILY -> stringResource(R.string.profile_name_strict_family)
     ProtectionProfile.TYPE_GAMING -> stringResource(R.string.profile_name_gaming)
-    else -> profile.name
+    ProtectionProfile.TYPE_STRICT_FAMILY -> stringResource(R.string.profile_name_strict_family)
+    else -> stringResource(R.string.profile_name_custom)
 }

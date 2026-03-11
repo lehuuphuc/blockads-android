@@ -30,6 +30,8 @@ import androidx.compose.material.icons.filled.QueryStats
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Shield
 import androidx.compose.material.icons.filled.Timer
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -66,7 +68,6 @@ import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import app.pwhs.blockads.R
-import app.pwhs.blockads.data.entities.ProtectionProfile
 import app.pwhs.blockads.data.repository.FilterListRepository
 import app.pwhs.blockads.ui.home.component.DailyStatsChart
 import app.pwhs.blockads.ui.home.component.PowerButton
@@ -81,10 +82,13 @@ import app.pwhs.blockads.util.formatCount
 import app.pwhs.blockads.util.formatDataSize
 import app.pwhs.blockads.util.formatTimeSince
 import app.pwhs.blockads.util.formatUptimeShort
+import app.pwhs.blockads.util.profileDisplayName
+import app.pwhs.blockads.util.profileIcon
 import com.google.accompanist.drawablepainter.rememberDrawablePainter
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootGraph
 import com.ramcosta.composedestinations.generated.destinations.LogScreenDestination
+import com.ramcosta.composedestinations.generated.destinations.ProfileScreenDestination
 import com.ramcosta.composedestinations.generated.destinations.StatisticsScreenDestination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import org.koin.androidx.compose.koinViewModel
@@ -242,32 +246,41 @@ fun HomeScreen(
                 textAlign = TextAlign.Center,
             )
 
-            // Active profile indicator
-            activeProfile?.let { profile ->
-                Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(8.dp))
+            Button(
+                onClick = {
+                    navigator.navigate(ProfileScreenDestination())
+                },
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)
+                ),
+                shape = RoundedCornerShape(8.dp)
+            ) {
                 Row(
-                    modifier = Modifier
-                        .clip(RoundedCornerShape(8.dp))
-                        .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.15f))
-                        .padding(horizontal = 12.dp, vertical = 6.dp),
-                    verticalAlignment = Alignment.CenterVertically
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     Icon(
-                        imageVector = Icons.Default.Shield,
+                        imageVector = profileIcon(activeProfile?.profileType),
                         contentDescription = null,
                         tint = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.size(16.dp)
                     )
-                    Spacer(modifier = Modifier.width(6.dp))
                     Text(
-                        text = profileDisplayName(profile),
+                        text = profileDisplayName(activeProfile),
                         style = MaterialTheme.typography.labelMedium,
                         color = MaterialTheme.colorScheme.primary
+                    )
+                    Icon(
+                        painter = painterResource(R.drawable.ic_edit),
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(16.dp)
                     )
                 }
             }
 
-            Spacer(modifier = Modifier.height(48.dp))
+            Spacer(modifier = Modifier.height(12.dp))
 
             val haptic = LocalHapticFeedback.current
             val isFirstVpnChange = remember { mutableStateOf(true) }
@@ -667,15 +680,4 @@ fun HomeScreen(
         }
 
     }
-}
-
-
-@Composable
-private fun profileDisplayName(profile: ProtectionProfile): String = when (profile.profileType) {
-    ProtectionProfile.TYPE_DEFAULT -> stringResource(R.string.profile_name_default)
-    ProtectionProfile.TYPE_STRICT -> stringResource(R.string.profile_name_strict)
-    ProtectionProfile.TYPE_FAMILY -> stringResource(R.string.profile_name_family)
-    ProtectionProfile.TYPE_GAMING -> stringResource(R.string.profile_name_gaming)
-    ProtectionProfile.TYPE_STRICT_FAMILY -> stringResource(R.string.profile_name_strict_family)
-    else -> profile.name
 }

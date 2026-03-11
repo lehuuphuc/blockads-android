@@ -82,8 +82,6 @@ import com.ramcosta.composedestinations.generated.destinations.AppearanceScreenD
 import com.ramcosta.composedestinations.generated.destinations.DnsProviderScreenDestination
 import com.ramcosta.composedestinations.generated.destinations.FilterSetupScreenDestination
 import com.ramcosta.composedestinations.generated.destinations.BlocklistDomainScreenDestination
-import com.ramcosta.composedestinations.generated.destinations.FirewallScreenDestination
-import com.ramcosta.composedestinations.generated.destinations.ProfileScreenDestination
 import com.ramcosta.composedestinations.generated.destinations.WhitelistDomainScreenDestination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import org.koin.androidx.compose.koinViewModel
@@ -201,102 +199,57 @@ fun SettingsScreen(
             Spacer(modifier = Modifier.height(12.dp))
 
             Card(
-                onClick = { navigator.navigate(ProfileScreenDestination) },
+                onClick = { navigator.navigate(DnsProviderScreenDestination) },
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
                 shape = RoundedCornerShape(16.dp)
             ) {
+                // DNS Response Type
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
+                        .clickable { showDnsResponseTypeDialog = true }
                         .padding(16.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Icon(
-                        Icons.Default.Shield,
+                        Icons.Default.Block,
                         contentDescription = null,
                         tint = MaterialTheme.colorScheme.secondary,
-                        modifier = Modifier.size(20.dp)
+                        modifier = Modifier.size(24.dp)
                     )
-                    Spacer(modifier = Modifier.width(12.dp))
+                    Spacer(modifier = Modifier.width(16.dp))
                     Column(modifier = Modifier.weight(1f)) {
                         Text(
-                            stringResource(R.string.settings_profiles),
-                            style = MaterialTheme.typography.titleSmall
+                            stringResource(R.string.settings_dns_response_type),
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold
                         )
+                        Spacer(modifier = Modifier.height(4.dp))
                         Text(
-                            stringResource(R.string.settings_profiles_desc),
+                            when (dnsResponseType) {
+                                AppPreferences.DNS_RESPONSE_NXDOMAIN ->
+                                    stringResource(R.string.dns_response_nxdomain)
+
+                                AppPreferences.DNS_RESPONSE_REFUSED ->
+                                    stringResource(R.string.dns_response_refused)
+
+                                else ->
+                                    stringResource(R.string.dns_response_custom_ip)
+                            },
                             style = MaterialTheme.typography.bodySmall,
-                            color = TextSecondary
+                            color = MaterialTheme.colorScheme.secondary
                         )
                     }
                     Icon(
                         Icons.AutoMirrored.Filled.ArrowForwardIos,
                         contentDescription = null,
-                        tint = TextSecondary,
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.size(16.dp)
                     )
                 }
-
-                HorizontalDivider(
-                    modifier = Modifier.padding(horizontal = 16.dp),
-                    color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
-                )
-
-                Spacer(modifier = Modifier.height(12.dp))
-
-                Card(
-                    onClick = { navigator.navigate(DnsProviderScreenDestination) },
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-                    shape = RoundedCornerShape(16.dp)
-                ) {
-                    // DNS Response Type
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clickable { showDnsResponseTypeDialog = true }
-                            .padding(16.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Icon(
-                            Icons.Default.Block,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.secondary,
-                            modifier = Modifier.size(24.dp)
-                        )
-                        Spacer(modifier = Modifier.width(16.dp))
-                        Column(modifier = Modifier.weight(1f)) {
-                            Text(
-                                stringResource(R.string.settings_dns_response_type),
-                                style = MaterialTheme.typography.titleMedium,
-                                fontWeight = FontWeight.Bold
-                            )
-                            Spacer(modifier = Modifier.height(4.dp))
-                            Text(
-                                when (dnsResponseType) {
-                                    AppPreferences.DNS_RESPONSE_NXDOMAIN ->
-                                        stringResource(R.string.dns_response_nxdomain)
-
-                                    AppPreferences.DNS_RESPONSE_REFUSED ->
-                                        stringResource(R.string.dns_response_refused)
-
-                                    else ->
-                                        stringResource(R.string.dns_response_custom_ip)
-                                },
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.secondary
-                            )
-                        }
-                        Icon(
-                            Icons.AutoMirrored.Filled.ArrowForwardIos,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier.size(16.dp)
-                        )
-                    }
-                }
-
-                Spacer(modifier = Modifier.height(24.dp))
             }
+
+            Spacer(modifier = Modifier.height(24.dp))
 
             Spacer(modifier = Modifier.height(12.dp))
 
@@ -437,9 +390,6 @@ fun SettingsScreen(
             // Firewall (Per-App Internet Control)
             FireWall(
                 modifier = Modifier.fillMaxWidth(),
-                onNavigateToFirewall = {
-                    navigator.navigate(FirewallScreenDestination)
-                },
                 onNavigateToFilterSetup = {
                     navigator.navigate(FilterSetupScreenDestination)
                 },

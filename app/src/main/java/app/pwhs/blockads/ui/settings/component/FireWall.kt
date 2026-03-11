@@ -15,7 +15,6 @@ import androidx.compose.material.icons.automirrored.filled.ArrowForwardIos
 import androidx.compose.material.icons.filled.Block
 import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.FilterList
-import androidx.compose.material.icons.filled.Security
 import androidx.compose.material.icons.filled.Wifi
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -46,7 +45,6 @@ fun FireWall(
     autoUpdateWifiOnly: Boolean,
     autoUpdateEnabled: Boolean,
     whitelistCount: Int = 0,
-    onNavigateToFirewall: () -> Unit = {},
     onNavigateToFilterSetup: () -> Unit = {},
     onNavigateToWhitelistDomains: () -> Unit = {},
     blocklistCount: Int = 0,
@@ -65,16 +63,6 @@ fun FireWall(
         shape = RoundedCornerShape(16.dp),
         modifier = modifier,
     ) {
-        SettingItem(
-            icon = Icons.Default.Security,
-            desc = stringResource(R.string.settings_firewall_desc),
-            title = stringResource(R.string.settings_firewall),
-            onClick = onNavigateToFirewall
-        )
-        HorizontalDivider(
-            modifier = Modifier.padding(vertical = 16.dp),
-            color = MaterialTheme.colorScheme.outline.copy(alpha = 0.1f)
-        )
         Column {
             Row(
                 modifier = Modifier
