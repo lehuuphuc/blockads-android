@@ -82,6 +82,10 @@ class GoTunnelAdapter(
             override fun getBlockReason(domain: String): String {
                 return filterRepo.getBlockReason(domain)
             }
+
+            override fun hasCustomRule(domain: String): Long {
+                return filterRepo.hasCustomRule(domain)
+            }
         })
     }
 

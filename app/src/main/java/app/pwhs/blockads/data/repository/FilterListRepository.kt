@@ -320,6 +320,24 @@ class FilterListRepository(
     }
 
     /**
+     * Checks if a domain has a custom rule override.
+     * Used by the native Go engine to bypass the Binary Trie fast-path.
+     * @return 1L for BLOCK override, 0L for ALLOW override, -1L for NO override.
+     */
+    fun hasCustomRule(domain: String): Long {
+        if (checkDomainAndParents(domain) { customAllowDomains.contains(it) }) {
+            return 0L
+        }
+        if (checkDomainAndParents(domain) { whitelistedDomains.contains(it) }) {
+            return 0L
+        }
+        if (checkDomainAndParents(domain) { customBlockDomains.contains(it) }) {
+            return 1L
+        }
+        return -1L
+    }
+
+    /**
      * Returns a key identifying the reason a domain is blocked.
      * Returns empty string if the domain is not blocked.
      * Use BlockReason constants; resolve to localized strings in UI.

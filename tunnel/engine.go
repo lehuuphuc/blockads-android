@@ -38,6 +38,9 @@ type DomainChecker interface {
 	// GetBlockReason returns the reason a domain is blocked (e.g., "ad", "security", "custom").
 	// Returns empty string if not blocked.
 	GetBlockReason(domain string) string
+	// HasCustomRule checks if a domain matches a custom allow or block rule.
+	// Returns 1 for block override, 0 for allow override, -1 for no override.
+	HasCustomRule(domain string) int
 }
 
 // FirewallChecker checks if a DNS query from a specific app should be blocked.
@@ -393,6 +396,26 @@ func (e *Engine) handleDNSQuery(queryInfo *DNSQueryInfo) {
 		}
 	}
 
+	// ── Early Return for Custom Rules Override ──
+	// Checks custom allow/block and whitelist rules in Kotlin BEFORE checking the fast-path Tries.
+	// 1 = Block Override, 0 = Allow Override, -1 = No Custom Rule
+	if e.domainChecker != nil {
+		customOverride := e.domainChecker.HasCustomRule(domain)
+		if customOverride == 0 {
+			// Explicitly allowed by user or whitelist, skip trie checks
+			e.handleForward(queryInfo, appName, startTime)
+			return
+		} else if customOverride == 1 {
+			// Explicitly blocked by user custom rules
+			blockedBy := e.domainChecker.GetBlockReason(domain)
+			if blockedBy == "" {
+				blockedBy = "custom"
+			}
+			e.handleBlockedDomain(queryInfo, blockedBy, appName, startTime)
+			return
+		}
+	}
+
 	// Fast Native Go Domain blocking check — Bloom Filter pre-filter + Mmap Trie
 	//
 	// Step 1: Bloom Filter (O(1)) — if it says "definitely not blocked", skip the trie entirely.
@@ -419,14 +442,6 @@ func (e *Engine) handleDNSQuery(queryInfo *DNSQueryInfo) {
 				return
 			}
 		}
-	}
-
-	// Fallback/Custom Domain blocking check (via Kotlin callback)
-	// This captures custom block/allow rules that aren't in the trie.
-	if e.domainChecker != nil && e.domainChecker.IsBlocked(domain) {
-		blockedBy := e.domainChecker.GetBlockReason(domain)
-		e.handleBlockedDomain(queryInfo, blockedBy, appName, startTime)
-		return
 	}
 
 	// Forward to upstream DNS
