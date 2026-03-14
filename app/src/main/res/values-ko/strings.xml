@@ -505,4 +505,5 @@
 
     <string name="settings_show_bottom_nav_labels">하단 탐색 라벨 표시</string>
     <string name="settings_show_bottom_nav_labels_desc">하단 탐색 메뉴의 아이콘 아래에 텍스트 표시</string>
+    <string name="vpn_phase_waiting_network">네트워크 대기 중…</string>
 </resources>

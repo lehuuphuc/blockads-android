@@ -505,4 +505,5 @@
 
     <string name="settings_show_bottom_nav_labels">Mostrar etiquetas de navegación inferior</string>
     <string name="settings_show_bottom_nav_labels_desc">Mostrar texto debajo de los iconos en la barra de navegación inferior</string>
+    <string name="vpn_phase_waiting_network">Esperando red…</string>
 </resources>

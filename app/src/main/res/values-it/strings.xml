@@ -558,4 +558,5 @@
 
     <string name="settings_show_bottom_nav_labels">Mostra etichette di navigazione</string>
     <string name="settings_show_bottom_nav_labels_desc">Mostra il testo sotto le icone nella barra di navigazione inferiore</string>
+    <string name="vpn_phase_waiting_network">In attesa della rete…</string>
 </resources>

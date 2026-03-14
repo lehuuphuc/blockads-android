@@ -505,4 +505,5 @@
 
     <string name="settings_show_bottom_nav_labels">แสดงป้ายกำกับการนำทางด้านล่าง</string>
     <string name="settings_show_bottom_nav_labels_desc">แสดงข้อความใต้ไอคอนในแถบการนำทางด้านล่าง</string>
+    <string name="vpn_phase_waiting_network">กำลังรอเครือข่าย…</string>
 </resources>

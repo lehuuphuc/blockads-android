@@ -552,4 +552,5 @@
 
     <string name="settings_show_bottom_nav_labels">Hiển thị chữ ở thanh điều hướng</string>
     <string name="settings_show_bottom_nav_labels_desc">Hiển thị văn bản bên dưới biểu tượng ở thanh điều hướng dưới cùng</string>
+    <string name="vpn_phase_waiting_network">Đang chờ mạng…</string>
 </resources>

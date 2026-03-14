@@ -373,6 +373,11 @@ fun AppearanceScreen(
                             Icons.Default.Language,
                             AppPreferences.LANGUAGE_AR
                         ),
+                        Triple(
+                            R.string.settings_lang_tr,
+                            Icons.Default.Language,
+                            AppPreferences.LANGUAGE_TR
+                        ),
                     )
                     languages.forEachIndexed { index, (labelRes, icon, langCode) ->
                         Row(

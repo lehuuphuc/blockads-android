@@ -521,4 +521,5 @@
 
     <string name="settings_show_bottom_nav_labels">إظهار تسميات التنقل السفلي</string>
     <string name="settings_show_bottom_nav_labels_desc">عرض النص أسفل الرموز في شريط التنقل السفلي</string>
+    <string name="vpn_phase_waiting_network">بانتظار الشبكة…</string>
 </resources>

@@ -25,12 +25,14 @@ import app.pwhs.blockads.data.dao.DnsLogDao
 import app.pwhs.blockads.data.entities.DnsProtocol
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.async
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.collectLatest
@@ -71,6 +73,7 @@ class AdBlockVpnService : VpnService() {
         const val ACTION_STOP = "app.pwhs.blockads.STOP_VPN"
         const val ACTION_PAUSE_1H = "app.pwhs.blockads.PAUSE_VPN_1H"
         const val ACTION_RESTART = "app.pwhs.blockads.RESTART_VPN"
+        const val EXTRA_STARTED_FROM_BOOT = "extra_started_from_boot"
 
         /**
          * Request a VPN restart to apply new settings.
@@ -116,8 +119,9 @@ class AdBlockVpnService : VpnService() {
     private var firewallManager: FirewallManager? = null
     private lateinit var firewallRuleDao: FirewallRuleDao
     private lateinit var appNameResolver: AppNameResolver
-    private var batteryMonitoringJob: kotlinx.coroutines.Job? = null
-    private var notificationUpdateJob: kotlinx.coroutines.Job? = null
+    private var batteryMonitoringJob: Job? = null
+    private var notificationUpdateJob: Job? = null
+    private val networkAvailableFlow = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
 
     private var vpnStartTime: Long = 0L
 
@@ -168,6 +172,8 @@ class AdBlockVpnService : VpnService() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        val startedFromBoot = intent?.getBooleanExtra(EXTRA_STARTED_FROM_BOOT, false) ?: false
+
         when (intent?.action) {
             ACTION_STOP -> {
                 stopVpn()
@@ -185,7 +191,7 @@ class AdBlockVpnService : VpnService() {
             }
 
             else -> {
-                startVpn()
+                startVpn(startedFromBoot)
                 return START_STICKY
             }
         }
@@ -231,7 +237,7 @@ class AdBlockVpnService : VpnService() {
         }
     }
 
-    private fun startVpn() {
+    private fun startVpn(startedFromBoot: Boolean = false) {
         if (isRunning || isConnecting) return
         isConnecting = true
 
@@ -333,6 +339,14 @@ class AdBlockVpnService : VpnService() {
 
 
                 // ── Phase 3: Establish VPN tunnel ──
+                if (startedFromBoot && networkMonitor != null && !networkMonitor!!.isNetworkAvailable()) {
+                    connectingPhase = getString(R.string.vpn_phase_waiting_network)
+                    updateNotification()
+                    Timber.d("Waiting for network before establishing VPN tunnel...")
+                    networkAvailableFlow.first()
+                    Timber.d("Network is now available, proceeding with VPN establishment")
+                }
+
                 connectingPhase = getString(R.string.vpn_phase_establishing)
                 updateNotification()
 
@@ -424,6 +438,16 @@ class AdBlockVpnService : VpnService() {
     }
 
     private fun establishVpn(whitelistedApps: Set<String>): Boolean {
+        // First check if the system still grants us the VPN permission.
+        // It's possible another VPN app took over or the user revoked it while the system was off.
+        if (VpnService.prepare(this) != null) {
+            Timber.e("VPN is not prepared or permission was revoked.")
+            // Stop without a normal notification and show the error badge immediately
+            stopVpn(showStoppedNotification = false)
+            showRevokedNotification()
+            return false
+        }
+
         return try {
             // Establish VPN — only route DNS traffic, NOT all traffic
             // We use a fake DNS server IP (10.0.0.1) and only route that IP
@@ -813,6 +837,7 @@ class AdBlockVpnService : VpnService() {
 
     private fun onNetworkAvailable() {
         Timber.d("Network available - checking VPN status")
+        networkAvailableFlow.tryEmit(Unit)
 
         // Use serviceScope to avoid blocking the callback thread
         serviceScope.launch {

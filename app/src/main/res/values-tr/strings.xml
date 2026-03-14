@@ -576,4 +576,5 @@ Desteklenen formatlar:
 
     <string name="settings_show_bottom_nav_labels">Alt Gezinme Etiketlerini Göster</string>
     <string name="settings_show_bottom_nav_labels_desc">Alt gezinme çubuğunda simgelerin altında metin göster</string>
+    <string name="vpn_phase_waiting_network">Ağ bekleniyor…</string>
 </resources>

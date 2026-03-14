@@ -504,5 +504,6 @@
 
     <string name="settings_show_bottom_nav_labels">ボトムナビゲーションのラベルを表示</string>
     <string name="settings_show_bottom_nav_labels_desc">ボトムナビゲーションのアイコンの下にテキストを表示する</string>
+    <string name="vpn_phase_waiting_network">ネットワーク待機中…</string>
 
 </resources>
