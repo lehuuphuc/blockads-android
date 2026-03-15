@@ -103,10 +103,10 @@ fun WireGuardImportScreen(
         viewModel.events.collect { event ->
             when (event) {
                 is WireGuardUiEvent.ConfigSaved -> {
-                    snackbarHostState.showSnackbar("WireGuard config saved. Restart VPN to apply.")
+                    snackbarHostState.showSnackbar("WireGuard config saved. Applying...")
                 }
                 is WireGuardUiEvent.ConfigCleared -> {
-                    snackbarHostState.showSnackbar("WireGuard config cleared. Restart VPN to apply.")
+                    snackbarHostState.showSnackbar("WireGuard config cleared. Resetting...")
                 }
             }
         }

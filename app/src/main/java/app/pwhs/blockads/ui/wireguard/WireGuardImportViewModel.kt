@@ -6,6 +6,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import app.pwhs.blockads.data.datastore.AppPreferences
 import app.pwhs.blockads.data.entities.WireGuardConfig
+import app.pwhs.blockads.service.AdBlockVpnService
 import app.pwhs.blockads.util.WireGuardConfigParser
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -118,6 +119,7 @@ class WireGuardImportViewModel(
                 appPrefs.setWgConfigJson(json)
                 appPrefs.setRoutingMode(AppPreferences.ROUTING_MODE_WIREGUARD)
                 _isWgActive.value = true
+                AdBlockVpnService.requestRestart(getApplication())
                 _events.emit(WireGuardUiEvent.ConfigSaved)
             } catch (e: Exception) {
                 _error.value = "Failed to save config: ${e.message}"
@@ -134,6 +136,7 @@ class WireGuardImportViewModel(
             appPrefs.setWgConfigJson(null)
             _isWgActive.value = false
             _config.value = null
+            AdBlockVpnService.requestRestart(getApplication())
             _events.emit(WireGuardUiEvent.ConfigCleared)
         }
     }
