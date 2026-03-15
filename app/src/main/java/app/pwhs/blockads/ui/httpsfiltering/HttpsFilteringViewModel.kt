@@ -210,8 +210,9 @@ class HttpsFilteringViewModel(
             val detectedBrowsers = withContext(Dispatchers.IO) { detectBrowsers() }
             _browsers.value = detectedBrowsers
 
-            // Check if proxy is already running
-            val caCert = engine.mitmCACert
+            // Check if proxy is already running or CA cert exists on disk
+            val certDir = getApplication<Application>().filesDir.absolutePath
+            val caCert = engine.getMitmCACert(certDir)
             if (!caCert.isNullOrEmpty()) {
                 _isProxyRunning.value = true
                 _caCertPem.value = caCert
@@ -224,7 +225,8 @@ class HttpsFilteringViewModel(
     private fun startProxy() {
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                val caPem = engine.startMitmProxy("127.0.0.1:8080")
+                val certDir = getApplication<Application>().filesDir.absolutePath
+                val caPem = engine.startMitmProxy("127.0.0.1:8080", certDir)
                 if (caPem.isNotEmpty()) {
                     _caCertPem.value = caPem
                     _isProxyRunning.value = true

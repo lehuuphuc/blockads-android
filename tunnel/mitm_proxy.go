@@ -63,9 +63,10 @@ type MitmProxy struct {
 	proxyBlocked atomic.Int64
 }
 
-// NewMitmProxy creates a new MITM proxy with a fresh Root CA and smart filter.
-func NewMitmProxy() (*MitmProxy, error) {
-	cm, err := NewCertManager()
+// NewMitmProxy creates a new MITM proxy with a persistent Root CA.
+// certDir is the directory where ca.crt and ca.key are stored.
+func NewMitmProxy(certDir string) (*MitmProxy, error) {
+	cm, err := NewCertManager(certDir)
 	if err != nil {
 		return nil, fmt.Errorf("init cert manager: %w", err)
 	}

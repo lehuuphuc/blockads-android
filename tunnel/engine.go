@@ -13,6 +13,7 @@ import (
 	"fmt"
 	"net"
 	"os"
+	"path/filepath"
 	"strings"
 	"sync"
 	"sync/atomic"
@@ -423,11 +424,12 @@ func (e *Engine) GetStats() string {
 // gomobile-compatible methods for controlling the HTTPS MITM popup blocker.
 
 // StartMitmProxy starts the local HTTPS MITM proxy on the given address
-// (e.g., "127.0.0.1:8080"). Returns the PEM-encoded Root CA certificate
-// that the user must install on their Android device.
+// (e.g., "127.0.0.1:8080"). certDir is the persistent directory for the
+// Root CA files (e.g., Android's getFilesDir()). Returns the PEM-encoded
+// Root CA certificate that the user must install on their Android device.
 //
 // Returns empty string on error (check logs).
-func (e *Engine) StartMitmProxy(addr string) string {
+func (e *Engine) StartMitmProxy(addr string, certDir string) string {
 	e.mu.Lock()
 	if e.mitmProxy != nil {
 		e.mu.Unlock()
@@ -435,7 +437,7 @@ func (e *Engine) StartMitmProxy(addr string) string {
 		return e.mitmProxy.GetCACertPEM()
 	}
 
-	proxy, err := NewMitmProxy()
+	proxy, err := NewMitmProxy(certDir)
 	if err != nil {
 		e.mu.Unlock()
 		logf("Failed to create MITM proxy: %v", err)
@@ -472,16 +474,31 @@ func (e *Engine) StopMitmProxy() {
 }
 
 // GetMitmCACert returns the PEM-encoded Root CA certificate.
-// Returns empty string if the MITM proxy has not been started.
-func (e *Engine) GetMitmCACert() string {
+// certDir is the persistent directory where the CA files are stored.
+// If the proxy is running in-memory, it returns its cert. Otherwise it reads from disk.
+// Returns empty string if no CA cert exists.
+func (e *Engine) GetMitmCACert(certDir string) string {
 	e.mu.Lock()
 	proxy := e.mitmProxy
 	e.mu.Unlock()
 
-	if proxy == nil {
+	// If proxy is active, it has the cert in memory
+	if proxy != nil {
+		return proxy.GetCACertPEM()
+	}
+
+	// Proxy not running in this instance, check disk directly
+	certPath := filepath.Join(certDir, caCertFile)
+	if !fileExists(certPath) {
 		return ""
 	}
-	return proxy.GetCACertPEM()
+
+	data, err := os.ReadFile(certPath)
+	if err != nil {
+		logf("Failed to read persistent CA cert: %v", err)
+		return ""
+	}
+	return string(data)
 }
 
 // SetMitmAllowedUIDs sets the list of Android app UIDs that are allowed

@@ -34,6 +34,9 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.collectLatest
@@ -61,6 +64,23 @@ private data class PrefsSnapshot(
     val firewallEnabled: Boolean,
 )
 
+/**
+ * Represents the true lifecycle state of the VPN engine.
+ * Emitted via [AdBlockVpnService.state] so UI can observe reactively.
+ */
+enum class VpnState {
+    /** Service is not running. */
+    STOPPED,
+    /** Service is starting (loading filters, preparing tunnel). */
+    STARTING,
+    /** Tunnel is established and actively filtering traffic. */
+    RUNNING,
+    /** Service is in the process of shutting down. */
+    STOPPING,
+    /** Service is tearing down and will immediately re-start. */
+    RESTARTING,
+}
+
 class AdBlockVpnService : VpnService() {
 
     companion object {
@@ -76,34 +96,34 @@ class AdBlockVpnService : VpnService() {
         const val ACTION_RESTART = "app.pwhs.blockads.RESTART_VPN"
         const val EXTRA_STARTED_FROM_BOOT = "extra_started_from_boot"
 
+        // ── Reactive VPN state ────────────────────────────────────────
+        private val _state = MutableStateFlow(VpnState.STOPPED)
+
+        /** The single source of truth for VPN lifecycle state. */
+        val state: StateFlow<VpnState> = _state.asStateFlow()
+
+        // Backward-compatible computed aliases (for widgets / tile / etc.)
+        val isRunning: Boolean get() = _state.value == VpnState.RUNNING
+        val isConnecting: Boolean get() = _state.value == VpnState.STARTING
+        val isRestarting: Boolean get() = _state.value == VpnState.RESTARTING
+
+        @Volatile
+        var startTimestamp = 0L
+            private set
+
         /**
          * Request a VPN restart to apply new settings.
          * Only restarts if the VPN is currently running.
          */
         fun requestRestart(context: Context) {
-            if (isRunning || isRestarting) {
+            val s = _state.value
+            if (s == VpnState.RUNNING || s == VpnState.RESTARTING) {
                 val intent = Intent(context, AdBlockVpnService::class.java).apply {
                     action = ACTION_RESTART
                 }
                 context.startService(intent)
             }
         }
-
-        @Volatile
-        var isRestarting = false
-            private set
-
-        @Volatile
-        var isRunning = false
-            private set
-
-        @Volatile
-        var isConnecting = false
-            private set
-
-        @Volatile
-        var startTimestamp = 0L
-            private set
     }
 
     private var vpnInterface: ParcelFileDescriptor? = null
@@ -199,15 +219,13 @@ class AdBlockVpnService : VpnService() {
     }
 
     private fun restartVpn() {
-        if (isRestarting) return
-        if (!isRunning && !isConnecting) return
+        if (_state.value == VpnState.RESTARTING) return
+        val s = _state.value
+        if (s != VpnState.RUNNING && s != VpnState.STARTING) return
 
-        isRestarting = true
+        _state.value = VpnState.RESTARTING
         Timber.d("Restarting VPN to apply new settings")
 
-        // Stop packet processing
-        isRunning = false
-        isConnecting = false
         isReconnecting = true
 
         // Stop monitoring
@@ -232,15 +250,14 @@ class AdBlockVpnService : VpnService() {
         // Brief delay to let old VPN resources (file descriptors, sockets) clean up
         serviceScope.launch {
             delay(RESTART_CLEANUP_DELAY_MS)
-
-            isRestarting = false
             startVpn()
         }
     }
 
     private fun startVpn(startedFromBoot: Boolean = false) {
-        if (isRunning || isConnecting) return
-        isConnecting = true
+        val s = _state.value
+        if (s == VpnState.RUNNING || s == VpnState.STARTING) return
+        _state.value = VpnState.STARTING
 
         createNotificationChannel()
         startForeground(NOTIFICATION_ID, buildNotification())
@@ -369,7 +386,6 @@ class AdBlockVpnService : VpnService() {
                 if (!vpnEstablished) {
                     Timber
                         .e("Failed to establish VPN after ${retryManager.getMaxRetries()} attempts")
-                    isConnecting = false
                     connectingPhase = ""
                     stopVpn()
                     return@launch
@@ -377,10 +393,9 @@ class AdBlockVpnService : VpnService() {
 
                 // VPN established successfully - reset retry counter
                 retryManager.reset()
-                isConnecting = false
                 connectingPhase = ""
                 isReconnecting = false
-                isRunning = true
+                _state.value = VpnState.RUNNING
                 appPrefs.setVpnEnabled(true)
                 vpnStartTime = System.currentTimeMillis()
                 startTimestamp = vpnStartTime
@@ -444,7 +459,6 @@ class AdBlockVpnService : VpnService() {
 
             } catch (e: Exception) {
                 Timber.e(e, "VPN startup failed")
-                isConnecting = false
                 stopVpn()
             }
         }
@@ -632,10 +646,8 @@ class AdBlockVpnService : VpnService() {
     }
 
     private fun stopVpn(showStoppedNotification: Boolean = true) {
-        isConnecting = false
-        isRunning = false
+        _state.value = VpnState.STOPPING
         isReconnecting = false
-        isRestarting = false
         startTimestamp = 0L
 
         // Stop Go tunnel engine (also stops WireGuard adapter via Router.Stop())
@@ -660,6 +672,7 @@ class AdBlockVpnService : VpnService() {
             Timber.e("Error closing VPN interface: $e")
         }
         vpnInterface = null
+        _state.value = VpnState.STOPPED
         stopForeground(STOP_FOREGROUND_REMOVE)
         if (showStoppedNotification) {
             stopForeground(STOP_FOREGROUND_DETACH)
@@ -687,10 +700,8 @@ class AdBlockVpnService : VpnService() {
     }
 
     override fun onDestroy() {
-        isConnecting = false
-        isRunning = false
+        _state.value = VpnState.STOPPED
         isReconnecting = false
-        isRestarting = false
         startTimestamp = 0L
 
         // Stop network monitoring

@@ -10,6 +10,8 @@ import (
 	"encoding/pem"
 	"fmt"
 	"math/big"
+	"os"
+	"path/filepath"
 	"strings"
 	"sync"
 	"time"
@@ -18,7 +20,8 @@ import (
 // ─────────────────────────────────────────────────────────────────────────────
 // MITM Certificate Authority — Root CA generation and per-domain cert minting.
 //
-// • GenerateCA() creates a self-signed Root CA (ECDSA P-256, 10-year validity).
+// • initCA(certDir) loads ca.crt/ca.key from disk if they exist,
+//   otherwise generates a new pair, writes them to disk, and uses them.
 // • getCertForHost(host) generates a leaf cert signed by the CA on demand.
 // • An in-memory cache avoids regenerating certs for the same domain.
 //
@@ -27,6 +30,11 @@ import (
 //   - Smaller certs = less memory per cached entry
 //   - Same security level as RSA-3072
 // ─────────────────────────────────────────────────────────────────────────────
+
+const (
+	caCertFile = "ca.crt"
+	caKeyFile  = "ca.key"
+)
 
 // CertManager handles Root CA lifecycle and per-host certificate generation.
 type CertManager struct {
@@ -40,10 +48,13 @@ type CertManager struct {
 	certCache sync.Map
 }
 
-// NewCertManager creates a CertManager and generates a fresh Root CA.
-func NewCertManager() (*CertManager, error) {
+// NewCertManager creates a CertManager and initialises the Root CA.
+// certDir is the persistent directory (e.g., Android's getFilesDir()).
+//   - If ca.crt and ca.key exist in certDir, they are loaded.
+//   - Otherwise a fresh Root CA is generated once and saved to certDir.
+func NewCertManager(certDir string) (*CertManager, error) {
 	cm := &CertManager{}
-	if err := cm.generateCA(); err != nil {
+	if err := cm.initCA(certDir); err != nil {
 		return nil, err
 	}
 	return cm, nil
@@ -71,6 +82,96 @@ func (cm *CertManager) GetTLSConfigForHost(host string) (*tls.Config, error) {
 }
 
 // ── Internal ─────────────────────────────────────────────────────────────────
+
+// initCA loads an existing CA from certDir, or generates a new one and
+// persists it to certDir so subsequent starts reuse the same Root CA.
+func (cm *CertManager) initCA(certDir string) error {
+	certPath := filepath.Join(certDir, caCertFile)
+	keyPath := filepath.Join(certDir, caKeyFile)
+
+	// ── Attempt to load existing CA from disk ──────────────────────
+	if fileExists(certPath) && fileExists(keyPath) {
+		if err := cm.loadCA(certPath, keyPath); err == nil {
+			logf("MITM CA loaded from disk: %s", certDir)
+			return nil
+		}
+		// If loading fails (corrupt file, etc.), fall through and regenerate.
+		logf("MITM CA: failed to load from disk, regenerating...")
+	}
+
+	// ── Generate a new CA and write it to disk ─────────────────────
+	if err := cm.generateCA(); err != nil {
+		return err
+	}
+	if err := cm.saveCA(certPath, keyPath); err != nil {
+		// Non-fatal: the proxy can still work with the in-memory CA,
+		// but the next restart will generate a new one.
+		logf("MITM CA: WARNING — failed to save to disk: %v", err)
+	} else {
+		logf("MITM CA: generated and saved to %s", certDir)
+	}
+	return nil
+}
+
+// loadCA reads PEM-encoded cert and key from disk and parses them.
+func (cm *CertManager) loadCA(certPath, keyPath string) error {
+	certPEM, err := os.ReadFile(certPath)
+	if err != nil {
+		return fmt.Errorf("read CA cert: %w", err)
+	}
+	keyPEM, err := os.ReadFile(keyPath)
+	if err != nil {
+		return fmt.Errorf("read CA key: %w", err)
+	}
+
+	// Parse certificate
+	certBlock, _ := pem.Decode(certPEM)
+	if certBlock == nil {
+		return fmt.Errorf("decode CA cert PEM: no PEM block found")
+	}
+	caCert, err := x509.ParseCertificate(certBlock.Bytes)
+	if err != nil {
+		return fmt.Errorf("parse CA cert: %w", err)
+	}
+
+	// Parse private key
+	keyBlock, _ := pem.Decode(keyPEM)
+	if keyBlock == nil {
+		return fmt.Errorf("decode CA key PEM: no PEM block found")
+	}
+	caKey, err := x509.ParseECPrivateKey(keyBlock.Bytes)
+	if err != nil {
+		return fmt.Errorf("parse CA key: %w", err)
+	}
+
+	cm.mu.Lock()
+	cm.caCert = caCert
+	cm.caKey = caKey
+	cm.caPEM = certPEM
+	cm.caKeyPEM = keyPEM
+	cm.mu.Unlock()
+
+	logf("MITM CA loaded: CN=%s, valid until %s", caCert.Subject.CommonName, caCert.NotAfter.Format("2006-01-02"))
+	return nil
+}
+
+// saveCA writes the in-memory CA cert and key to disk as PEM files.
+func (cm *CertManager) saveCA(certPath, keyPath string) error {
+	cm.mu.RLock()
+	certPEM := cm.caPEM
+	keyPEM := cm.caKeyPEM
+	cm.mu.RUnlock()
+
+	// Write cert (world-readable is fine — it's a public certificate)
+	if err := os.WriteFile(certPath, certPEM, 0644); err != nil {
+		return fmt.Errorf("write CA cert: %w", err)
+	}
+	// Write key (owner-only — private key must stay secret)
+	if err := os.WriteFile(keyPath, keyPEM, 0600); err != nil {
+		return fmt.Errorf("write CA key: %w", err)
+	}
+	return nil
+}
 
 // generateCA creates a self-signed ECDSA P-256 Root CA.
 func (cm *CertManager) generateCA() error {
@@ -199,4 +300,10 @@ func (cm *CertManager) getCertForHost(host string) (*tls.Certificate, error) {
 	// Cache it
 	cm.certCache.Store(host, tlsCert)
 	return tlsCert, nil
+}
+
+// fileExists returns true if the path exists and is a regular file.
+func fileExists(path string) bool {
+	info, err := os.Stat(path)
+	return err == nil && !info.IsDir()
 }
