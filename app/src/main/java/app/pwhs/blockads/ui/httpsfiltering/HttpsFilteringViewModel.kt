@@ -38,6 +38,18 @@ data class BrowserInfo(
     val isSelected: Boolean = false
 )
 
+/** Certificate installation verification status. */
+enum class CertStatus {
+    /** Not yet checked. */
+    UNKNOWN,
+    /** Verification in progress. */
+    CHECKING,
+    /** Certificate is installed and working. */
+    INSTALLED,
+    /** Certificate is NOT installed or verification failed. */
+    NOT_INSTALLED
+}
+
 // ── Events ──────────────────────────────────────────────────────────────────
 
 sealed class HttpsFilteringEvent {
@@ -82,6 +94,10 @@ class HttpsFilteringViewModel(
     private val _certExported = MutableStateFlow(false)
     val certExported: StateFlow<Boolean> = _certExported.asStateFlow()
 
+    /** Certificate installation verification status. */
+    private val _certStatus = MutableStateFlow(CertStatus.UNKNOWN)
+    val certStatus: StateFlow<CertStatus> = _certStatus.asStateFlow()
+
     private val _events = MutableSharedFlow<HttpsFilteringEvent>()
     val events: SharedFlow<HttpsFilteringEvent> = _events.asSharedFlow()
 
@@ -122,6 +138,68 @@ class HttpsFilteringViewModel(
             // (This ViewModel's engine is a separate instance from the VPN's engine,
             // so we must restart for changes to take effect.)
             AdBlockVpnService.requestRestart(getApplication())
+        }
+    }
+
+    /**
+     * Verify that the Root CA certificate has been installed correctly.
+     *
+     * Checks the Android user trust store for a certificate matching our
+     * Root CA's subject DN. No network required — works even when VPN is off.
+     */
+    fun verifyCert() {
+        viewModelScope.launch {
+            _certStatus.value = CertStatus.CHECKING
+            val installed = withContext(Dispatchers.IO) { checkCertInTrustStore() }
+            _certStatus.value = if (installed) CertStatus.INSTALLED else CertStatus.NOT_INSTALLED
+        }
+    }
+
+    /**
+     * Checks if our Root CA is installed in the Android user trust store.
+     *
+     * Approach: Load the "AndroidCAStore" KeyStore, iterate all aliases,
+     * and compare each certificate's subject DN with our CA's subject DN.
+     */
+    private fun checkCertInTrustStore(): Boolean {
+        try {
+            // Get our CA cert PEM
+            val certDir = getApplication<Application>().filesDir.absolutePath
+            val caPem = engine.getMitmCACert(certDir)
+            if (caPem.isNullOrEmpty()) {
+                Timber.d("Cert verification: no CA cert generated yet")
+                return false
+            }
+
+            // Parse our CA cert
+            val certFactory = java.security.cert.CertificateFactory.getInstance("X.509")
+            val ourCert = certFactory.generateCertificate(
+                caPem.byteInputStream()
+            ) as java.security.cert.X509Certificate
+            val ourSubject = ourCert.subjectX500Principal
+
+            // Check Android user trust store
+            val ks = java.security.KeyStore.getInstance("AndroidCAStore")
+            ks.load(null)
+
+            for (alias in ks.aliases()) {
+                // User-installed certs have aliases starting with "user:"
+                if (!alias.startsWith("user:")) continue
+
+                val cert = ks.getCertificate(alias) as? java.security.cert.X509Certificate
+                    ?: continue
+
+                if (cert.subjectX500Principal == ourSubject) {
+                    Timber.d("Cert verification: found matching CA in trust store (alias=$alias)")
+                    return true
+                }
+            }
+
+            Timber.d("Cert verification: CA not found in user trust store")
+            return false
+        } catch (e: Exception) {
+            Timber.e(e, "Cert verification failed")
+            return false
         }
     }
 

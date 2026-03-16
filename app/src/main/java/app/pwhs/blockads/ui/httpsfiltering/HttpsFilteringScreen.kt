@@ -8,7 +8,9 @@ import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -29,6 +31,7 @@ import androidx.compose.material.icons.filled.Error
 import androidx.compose.material.icons.filled.FileDownload
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Shield
+import androidx.compose.material.icons.filled.Verified
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.Language
 import androidx.compose.material.icons.outlined.Security
@@ -61,6 +64,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -82,6 +86,7 @@ fun HttpsFilteringScreen(
     val browsers by viewModel.browsers.collectAsStateWithLifecycle()
     val isLoading by viewModel.isLoading.collectAsStateWithLifecycle()
     val certExported by viewModel.certExported.collectAsStateWithLifecycle()
+    val certStatus by viewModel.certStatus.collectAsStateWithLifecycle()
 
     val snackbarHostState = remember { SnackbarHostState() }
     val context = LocalContext.current
@@ -174,22 +179,24 @@ fun HttpsFilteringScreen(
                     ExplanationCard()
                 }
 
-                // ── Certificate Actions (only when enabled) ──────────
+                // ── Setup Guide (only when enabled) ──────────────────
                 item {
                     AnimatedVisibility(
                         visible = isEnabled,
                         enter = fadeIn(),
                         exit = fadeOut()
                     ) {
-                        CertificateCard(
+                        SetupGuideCard(
                             certExported = certExported,
+                            certStatus = certStatus,
                             onExport = { viewModel.exportCaCert() },
                             onOpenSettings = {
                                 try {
                                     val intent = viewModel.createSecuritySettingsIntent()
                                     settingsLauncher.launch(intent)
                                 } catch (_: Exception) { }
-                            }
+                            },
+                            onVerifyCert = { viewModel.verifyCert() }
                         )
                     }
                 }
@@ -372,13 +379,15 @@ private fun ExplanationCard() {
     }
 }
 
-// ── Certificate Card ────────────────────────────────────────────────────────
+// ── Setup Guide Card ────────────────────────────────────────────────────────
 
 @Composable
-private fun CertificateCard(
+private fun SetupGuideCard(
     certExported: Boolean,
+    certStatus: CertStatus,
     onExport: () -> Unit,
-    onOpenSettings: () -> Unit
+    onOpenSettings: () -> Unit,
+    onVerifyCert: () -> Unit
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -397,31 +406,43 @@ private fun CertificateCard(
                     modifier = Modifier.size(22.dp)
                 )
                 Spacer(modifier = Modifier.width(10.dp))
-                Text(
-                    text = stringResource(R.string.https_filtering_ca_title),
-                    style = MaterialTheme.typography.titleSmall,
-                    fontWeight = FontWeight.SemiBold
-                )
+                Column {
+                    Text(
+                        text = stringResource(R.string.https_filtering_ca_title),
+                        style = MaterialTheme.typography.titleSmall,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                    Text(
+                        text = stringResource(R.string.https_filtering_ca_desc),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
             }
 
-            Spacer(modifier = Modifier.height(10.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
-            Text(
-                text = stringResource(R.string.https_filtering_ca_desc),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                lineHeight = MaterialTheme.typography.bodySmall.lineHeight
+            // ── Step 1: Save Certificate ─────────────────────────────
+            StepItem(
+                stepNumber = 1,
+                title = stringResource(R.string.https_filtering_step1_title),
+                description = stringResource(R.string.https_filtering_step1_desc),
+                isDone = certExported,
+                icon = Icons.Default.FileDownload
             )
 
-            Spacer(modifier = Modifier.height(14.dp))
+            Spacer(modifier = Modifier.height(8.dp))
 
-            // Step 1: Export to Downloads
             Button(
                 onClick = onExport,
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.primary
+                    containerColor = if (certExported) {
+                        MaterialTheme.colorScheme.primary.copy(alpha = 0.7f)
+                    } else {
+                        MaterialTheme.colorScheme.primary
+                    }
                 )
             ) {
                 Icon(
@@ -431,65 +452,236 @@ private fun CertificateCard(
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
-                    text = stringResource(R.string.https_filtering_export_ca),
+                    text = if (certExported) {
+                        stringResource(R.string.https_filtering_cert_saved)
+                    } else {
+                        stringResource(R.string.https_filtering_export_ca)
+                    },
                     fontWeight = FontWeight.Medium
                 )
             }
 
-            // After exporting, show install instructions
-            AnimatedVisibility(visible = certExported) {
-                Column {
-                    Spacer(modifier = Modifier.height(14.dp))
+            Spacer(modifier = Modifier.height(16.dp))
+            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f))
+            Spacer(modifier = Modifier.height(16.dp))
 
-                    // Success indicator
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(
-                            imageVector = Icons.Default.CheckCircle,
-                            contentDescription = null,
-                            tint = Color(0xFF4CAF50),
-                            modifier = Modifier.size(16.dp)
-                        )
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text(
-                            text = stringResource(R.string.https_filtering_cert_saved),
-                            style = MaterialTheme.typography.bodySmall,
-                            color = Color(0xFF4CAF50),
-                            fontWeight = FontWeight.Medium
-                        )
-                    }
+            // ── Step 2: Install Certificate ──────────────────────────
+            StepItem(
+                stepNumber = 2,
+                title = stringResource(R.string.https_filtering_step2_title),
+                description = stringResource(R.string.https_filtering_step2_desc),
+                isDone = certStatus == CertStatus.INSTALLED,
+                icon = Icons.Default.Settings
+            )
 
-                    Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(8.dp))
 
-                    // Manual install steps
-                    Text(
-                        text = stringResource(R.string.https_filtering_install_steps),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        lineHeight = MaterialTheme.typography.bodyMedium.lineHeight
+            // Install instructions
+            Text(
+                text = stringResource(R.string.https_filtering_install_steps),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                lineHeight = MaterialTheme.typography.bodyMedium.lineHeight,
+                modifier = Modifier.padding(start = 4.dp)
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            OutlinedButton(
+                onClick = onOpenSettings,
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Settings,
+                    contentDescription = null,
+                    modifier = Modifier.size(18.dp)
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = stringResource(R.string.https_filtering_open_settings),
+                    fontWeight = FontWeight.Medium
+                )
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f))
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // ── Step 3: Verify Certificate ───────────────────────────
+            StepItem(
+                stepNumber = 3,
+                title = stringResource(R.string.https_filtering_step3_title),
+                description = stringResource(R.string.https_filtering_step3_desc),
+                isDone = certStatus == CertStatus.INSTALLED,
+                icon = Icons.Default.Verified
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // Cert status badge
+            CertStatusBadge(certStatus = certStatus)
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            OutlinedButton(
+                onClick = onVerifyCert,
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp),
+                enabled = certStatus != CertStatus.CHECKING
+            ) {
+                if (certStatus == CertStatus.CHECKING) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(18.dp),
+                        strokeWidth = 2.dp
                     )
-
-                    Spacer(modifier = Modifier.height(12.dp))
-
-                    // Step 2: Open Security Settings
-                    OutlinedButton(
-                        onClick = onOpenSettings,
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(12.dp)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Settings,
-                            contentDescription = null,
-                            modifier = Modifier.size(18.dp)
-                        )
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text(
-                            text = stringResource(R.string.https_filtering_open_settings),
-                            fontWeight = FontWeight.Medium
-                        )
-                    }
+                } else {
+                    Icon(
+                        imageVector = Icons.Default.Verified,
+                        contentDescription = null,
+                        modifier = Modifier.size(18.dp)
+                    )
                 }
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = stringResource(R.string.https_filtering_verify_cert),
+                    fontWeight = FontWeight.Medium
+                )
             }
         }
+    }
+}
+
+// ── Step Item ───────────────────────────────────────────────────────────────
+
+@Composable
+private fun StepItem(
+    stepNumber: Int,
+    title: String,
+    description: String,
+    isDone: Boolean,
+    icon: ImageVector
+) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        // Step number circle
+        Box(
+            modifier = Modifier
+                .size(28.dp)
+                .clip(CircleShape)
+                .background(
+                    if (isDone) Color(0xFF4CAF50) else MaterialTheme.colorScheme.primary
+                ),
+            contentAlignment = Alignment.Center
+        ) {
+            if (isDone) {
+                Icon(
+                    imageVector = Icons.Default.CheckCircle,
+                    contentDescription = null,
+                    tint = Color.White,
+                    modifier = Modifier.size(18.dp)
+                )
+            } else {
+                Text(
+                    text = stepNumber.toString(),
+                    style = MaterialTheme.typography.labelMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.width(12.dp))
+
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.bodyMedium,
+                fontWeight = FontWeight.SemiBold,
+                color = if (isDone) {
+                    Color(0xFF4CAF50)
+                } else {
+                    MaterialTheme.colorScheme.onSurface
+                }
+            )
+            Text(
+                text = description,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+    }
+}
+
+// ── Cert Status Badge ───────────────────────────────────────────────────────
+
+@Composable
+private fun CertStatusBadge(certStatus: CertStatus) {
+    val (bgColor, textColor, text) = when (certStatus) {
+        CertStatus.INSTALLED -> Triple(
+            Color(0xFF4CAF50).copy(alpha = 0.1f),
+            Color(0xFF4CAF50),
+            stringResource(R.string.https_filtering_cert_installed)
+        )
+        CertStatus.NOT_INSTALLED -> Triple(
+            MaterialTheme.colorScheme.error.copy(alpha = 0.1f),
+            MaterialTheme.colorScheme.error,
+            stringResource(R.string.https_filtering_cert_not_installed)
+        )
+        CertStatus.CHECKING -> Triple(
+            MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
+            MaterialTheme.colorScheme.primary,
+            stringResource(R.string.https_filtering_cert_checking)
+        )
+        CertStatus.UNKNOWN -> Triple(
+            MaterialTheme.colorScheme.surfaceVariant,
+            MaterialTheme.colorScheme.onSurfaceVariant,
+            stringResource(R.string.https_filtering_cert_vpn_required)
+        )
+    }
+
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(8.dp))
+            .background(bgColor)
+            .padding(horizontal = 12.dp, vertical = 10.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        when (certStatus) {
+            CertStatus.INSTALLED -> Icon(
+                imageVector = Icons.Default.CheckCircle,
+                contentDescription = null,
+                tint = textColor,
+                modifier = Modifier.size(18.dp)
+            )
+            CertStatus.NOT_INSTALLED -> Icon(
+                imageVector = Icons.Default.Error,
+                contentDescription = null,
+                tint = textColor,
+                modifier = Modifier.size(18.dp)
+            )
+            CertStatus.CHECKING -> CircularProgressIndicator(
+                modifier = Modifier.size(18.dp),
+                strokeWidth = 2.dp,
+                color = textColor
+            )
+            CertStatus.UNKNOWN -> Icon(
+                imageVector = Icons.Outlined.Info,
+                contentDescription = null,
+                tint = textColor,
+                modifier = Modifier.size(18.dp)
+            )
+        }
+        Spacer(modifier = Modifier.width(10.dp))
+        Text(
+            text = text,
+            style = MaterialTheme.typography.bodySmall,
+            fontWeight = FontWeight.Medium,
+            color = textColor
+        )
     }
 }
 
