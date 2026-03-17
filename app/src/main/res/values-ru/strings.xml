@@ -611,4 +611,7 @@
     <string name="https_filtering_browser_section">Выбор браузера</string>
     <string name="https_filtering_browser_desc">Выберите браузеры для применения косметического фильтра. Фильтруются только выбранные приложения.</string>
     <string name="https_filtering_settings_desc">Скрытие рекламы в браузерах</string>
+    <string name="domain_rules_title">Правила доменов</string>
+    <string name="domain_rules_tab_whitelist">Белый список</string>
+    <string name="domain_rules_tab_blocklist">Черный список</string>
 </resources>

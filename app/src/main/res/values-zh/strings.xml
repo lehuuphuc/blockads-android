@@ -565,4 +565,7 @@
     <string name="https_filtering_browser_section">浏览器选择</string>
     <string name="https_filtering_browser_desc">选择要应用化妆品广告过滤的浏览器。仅过滤选定的应用。</string>
     <string name="https_filtering_settings_desc">在浏览器中视觉性隐藏广告</string>
+    <string name="domain_rules_title">域名规则</string>
+    <string name="domain_rules_tab_whitelist">白名单</string>
+    <string name="domain_rules_tab_blocklist">黑名单</string>
 </resources>

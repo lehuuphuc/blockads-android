@@ -563,4 +563,7 @@
     <string name="https_filtering_browser_section">ブラウザの選択</string>
     <string name="https_filtering_browser_desc">コスメティック広告フィルタリングを適用するブラウザを選択します。選択したアプリのみがフィルタリングされます。</string>
     <string name="https_filtering_settings_desc">ブラウザで広告を視覚的に非表示</string>
+    <string name="domain_rules_title">ドメインルール</string>
+    <string name="domain_rules_tab_whitelist">許可リスト</string>
+    <string name="domain_rules_tab_blocklist">ブロックリスト</string>
 </resources>

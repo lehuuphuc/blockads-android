@@ -617,4 +617,7 @@
     <string name="https_filtering_browser_section">Selezione browser</string>
     <string name="https_filtering_browser_desc">Seleziona i browser per applicare il filtraggio cosmetico. Solo le app selezionate vengono filtrate.</string>
     <string name="https_filtering_settings_desc">Nascondi annunci visivamente nei browser</string>
+    <string name="domain_rules_title">Regole del dominio</string>
+    <string name="domain_rules_tab_whitelist">Lista consentiti</string>
+    <string name="domain_rules_tab_blocklist">Lista bloccati</string>
 </resources>

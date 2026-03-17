@@ -565,4 +565,7 @@
     <string name="https_filtering_browser_section">Selección de navegador</string>
     <string name="https_filtering_browser_desc">Selecciona los navegadores para aplicar filtrado cosmético. Solo se filtran las aplicaciones seleccionadas.</string>
     <string name="https_filtering_settings_desc">Ocultar anuncios visualmente en navegadores</string>
+    <string name="domain_rules_title">Reglas de dominio</string>
+    <string name="domain_rules_tab_whitelist">Lista blanca</string>
+    <string name="domain_rules_tab_blocklist">Lista negra</string>
 </resources>

@@ -612,4 +612,7 @@
     <string name="https_filtering_browser_section">Lựa chọn trình duyệt</string>
     <string name="https_filtering_browser_desc">Chọn trình duyệt để áp dụng lọc quảng cáo. Chỉ các ứng dụng được chọn mới được lọc.</string>
     <string name="https_filtering_settings_desc">Ẩn quảng cáo trực quan trong trình duyệt</string>
+    <string name="domain_rules_title">Quy tắc tên miền</string>
+    <string name="domain_rules_tab_whitelist">Danh sách trắng</string>
+    <string name="domain_rules_tab_blocklist">Danh sách đen</string>
 </resources>

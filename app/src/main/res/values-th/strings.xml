@@ -564,4 +564,7 @@
     <string name="https_filtering_browser_section">การเลือกเบราว์เซอร์</string>
     <string name="https_filtering_browser_desc">เลือกเบราว์เซอร์เพื่อใช้ตัวกรองโฆษณา เฉพาะแอปที่เลือกเท่านั้นที่จะถูกกรอง</string>
     <string name="https_filtering_settings_desc">ซ่อนโฆษณาในเบราว์เซอร์</string>
+    <string name="domain_rules_title">กฎโดเมน</string>
+    <string name="domain_rules_tab_whitelist">รายการที่อนุญาต</string>
+    <string name="domain_rules_tab_blocklist">รายการที่บล็อก</string>
 </resources>

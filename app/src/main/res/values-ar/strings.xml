@@ -580,4 +580,7 @@
     <string name="https_filtering_browser_section">اختيار المتصفح</string>
     <string name="https_filtering_browser_desc">حدد المتصفحات لتطبيق فلتر الإعلانات. يتم تصفية التطبيقات المحددة فقط.</string>
     <string name="https_filtering_settings_desc">إخفاء الإعلانات بصريًا في المتصفحات</string>
+    <string name="domain_rules_title">قواعد النطاق</string>
+    <string name="domain_rules_tab_whitelist">القائمة البيضاء</string>
+    <string name="domain_rules_tab_blocklist">قائمة الحظر</string>
 </resources>

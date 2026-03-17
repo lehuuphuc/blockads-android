@@ -635,5 +635,8 @@ Desteklenen formatlar:
     <string name="https_filtering_cert_vpn_required">"Sertifikayı Doğrula"ya dokunarak kontrol edin</string>
     <string name="https_filtering_browser_section">Tarayıcı Seçimi</string>
     <string name="https_filtering_browser_desc">Kozmetik reklam filtreleme uygulanacak tarayıcıları seçin. Yalnızca seçilen uygulamalar filtrelenir.</string>
+    <string name="domain_rules_title">Alan Adı Kuralları</string>
+    <string name="domain_rules_tab_whitelist">Beyaz Liste</string>
+    <string name="domain_rules_tab_blocklist">Kara Liste</string>
     <string name="https_filtering_settings_desc">Tarayıcılarda reklamları görsel olarak gizle</string>
 </resources>
