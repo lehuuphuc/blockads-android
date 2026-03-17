@@ -3,9 +3,9 @@
     android:id="@+id/widget_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:gravity="center"
     android:background="@drawable/widget_background"
+    android:gravity="center"
+    android:orientation="vertical"
     android:padding="8dp">
 
     <ImageView
@@ -22,8 +22,11 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="4dp"
+        android:ellipsize="end"
+        android:maxLines="1"
         android:text="@string/widget_unprotected"
-        android:textColor="#757575"
+        android:textAlignment="center"
+        android:textColor="@color/white"
         android:textSize="11sp"
         android:textStyle="bold" />
 
