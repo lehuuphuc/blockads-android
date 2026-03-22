@@ -8,7 +8,9 @@ import androidx.core.app.NotificationCompat
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import app.pwhs.blockads.R
+import app.pwhs.blockads.data.dao.FilterListDao
 import app.pwhs.blockads.data.datastore.AppPreferences
+import app.pwhs.blockads.data.repository.CustomFilterManager
 import app.pwhs.blockads.data.repository.FilterListRepository
 import kotlinx.coroutines.flow.first
 import org.koin.core.component.KoinComponent
@@ -22,6 +24,8 @@ class FilterUpdateWorker(
 
     private val filterListRepository: FilterListRepository by inject()
     private val appPreferences: AppPreferences by inject()
+    private val filterListDao: FilterListDao by inject()
+    private val customFilterManager: CustomFilterManager by inject()
 
     companion object {
         const val WORK_NAME = "filter_update_work"
@@ -34,55 +38,81 @@ class FilterUpdateWorker(
             // Check notification preference
             val notificationType = appPreferences.autoUpdateNotification.first()
 
-            // Update all enabled filters
-            val result = filterListRepository.loadAllEnabledFilters()
+            var totalCount = 0
+            var isAnySuccess = false
+            var failureMessage: String? = null
 
-            result.fold(
-                onSuccess = { totalDomains ->
-                    // Show notification based on preference
-                    when (notificationType) {
-                        AppPreferences.NOTIFICATION_NORMAL -> {
-                            showUpdateNotification(
-                                title = applicationContext.getString(R.string.filter_update_success),
-                                message = applicationContext.getString(
-                                    R.string.filter_update_success_message,
-                                    totalDomains
-                                ),
-                                isSuccess = true
-                            )
-                        }
+            // 1. Update remote built-in filters
+            val result = filterListRepository.forceUpdateAllEnabledFilters()
+            if (result.isSuccess) {
+                totalCount += result.getOrDefault(0)
+                isAnySuccess = true
+            } else {
+                failureMessage = result.exceptionOrNull()?.message
+            }
 
-                        AppPreferences.NOTIFICATION_SILENT -> {
-                            showUpdateNotification(
-                                title = applicationContext.getString(R.string.filter_update_success),
-                                message = applicationContext.getString(
-                                    R.string.filter_update_success_message,
-                                    totalDomains
-                                ),
-                                isSuccess = true,
-                                silent = true
-                            )
-                        }
-
-                        AppPreferences.NOTIFICATION_NONE -> {
-                            // No notification
+            // 2. Update all enabled custom filters
+            val customFilters = filterListDao.getAllNonBuiltIn()
+            for (filter in customFilters) {
+                if (filter.isEnabled) {
+                    val customResult = customFilterManager.updateCustomFilter(filter)
+                    if (customResult.isSuccess) {
+                        totalCount += customResult.getOrNull()?.ruleCount ?: 0
+                        isAnySuccess = true
+                    } else {
+                        if (failureMessage == null) {
+                            failureMessage = customResult.exceptionOrNull()?.message
                         }
                     }
-                    Result.success()
-                },
-                onFailure = { error ->
-                    // Only show error notifications if not set to NONE
-                    if (notificationType != AppPreferences.NOTIFICATION_NONE) {
+                }
+            }
+
+            // Always reload engine in case any filters updated their binaries
+            filterListRepository.loadAllEnabledFilters()
+
+            if (isAnySuccess || totalCount > 0) {
+                // Show notification based on preference
+                when (notificationType) {
+                    AppPreferences.NOTIFICATION_NORMAL -> {
                         showUpdateNotification(
-                            title = applicationContext.getString(R.string.filter_update_failed),
-                            message = error.message
-                                ?: applicationContext.getString(R.string.filter_update_failed_message),
-                            isSuccess = false
+                            title = applicationContext.getString(R.string.filter_update_success),
+                            message = applicationContext.getString(
+                                R.string.filter_update_success_message,
+                                totalCount
+                            ),
+                            isSuccess = true
                         )
                     }
-                    Result.retry()
+
+                    AppPreferences.NOTIFICATION_SILENT -> {
+                        showUpdateNotification(
+                            title = applicationContext.getString(R.string.filter_update_success),
+                            message = applicationContext.getString(
+                                R.string.filter_update_success_message,
+                                totalCount
+                            ),
+                            isSuccess = true,
+                            silent = true
+                        )
+                    }
+
+                    AppPreferences.NOTIFICATION_NONE -> {
+                        // No notification
+                    }
                 }
-            )
+                Result.success()
+            } else {
+                // Only show error notifications if not set to NONE
+                if (notificationType != AppPreferences.NOTIFICATION_NONE) {
+                    showUpdateNotification(
+                        title = applicationContext.getString(R.string.filter_update_failed),
+                        message = failureMessage
+                            ?: applicationContext.getString(R.string.filter_update_failed_message),
+                        isSuccess = false
+                    )
+                }
+                Result.retry()
+            }
         } catch (e: Exception) {
             Timber.e(e, "Filter update failed")
             Result.failure()
