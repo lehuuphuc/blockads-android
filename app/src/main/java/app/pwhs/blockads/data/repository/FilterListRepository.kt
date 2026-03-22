@@ -284,10 +284,13 @@ class FilterListRepository(
     // Paths to pre-compiled binary files for Go Native Engine (CSV strings)
     @Volatile
     private var adTriePaths: String = ""
+
     @Volatile
     private var securityTriePaths: String = ""
+
     @Volatile
     private var adBloomPaths: String = ""
+
     @Volatile
     private var securityBloomPaths: String = ""
 

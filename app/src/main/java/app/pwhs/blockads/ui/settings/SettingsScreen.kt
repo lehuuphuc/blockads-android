@@ -69,6 +69,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import app.pwhs.blockads.R
 import app.pwhs.blockads.data.datastore.AppPreferences
 import app.pwhs.blockads.ui.event.UiEventEffect
+import app.pwhs.blockads.ui.logs.dialog.ConfirmClearLogDialog
 import app.pwhs.blockads.ui.settings.component.DnsResponseTypeDialog
 import app.pwhs.blockads.ui.settings.component.FireWall
 import app.pwhs.blockads.ui.settings.component.SectionHeader
@@ -102,6 +103,7 @@ fun SettingsScreen(
 
     val dnsResponseType by viewModel.dnsResponseType.collectAsStateWithLifecycle()
     var showDnsResponseTypeDialog by remember { mutableStateOf(false) }
+    var showClearConfirm by remember { mutableStateOf(false) }
 
     val safeSearchEnabled by viewModel.safeSearchEnabled.collectAsStateWithLifecycle()
     val youtubeRestrictedMode by viewModel.youtubeRestrictedMode.collectAsStateWithLifecycle()
@@ -531,7 +533,9 @@ fun SettingsScreen(
             }
             Spacer(modifier = Modifier.height(12.dp))
             Button(
-                onClick = { viewModel.clearLogs() },
+                onClick = {
+                    showClearConfirm = true
+                },
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp),
                 colors = ButtonDefaults.buttonColors(
@@ -826,6 +830,16 @@ fun SettingsScreen(
                     showDnsResponseTypeDialog = false
                 },
                 onDismiss = { showDnsResponseTypeDialog = false }
+            )
+        }
+
+        if (showClearConfirm) {
+            ConfirmClearLogDialog(
+                onClear = {
+                    viewModel.clearLogs()
+                    showClearConfirm = false
+                },
+                onDismiss = { showClearConfirm = false }
             )
         }
     }

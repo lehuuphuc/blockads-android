@@ -202,7 +202,14 @@ fun ProfileScreen(
         AddScheduleDialog(
             onDismiss = { showScheduleDialog = false },
             onAdd = { startH, startM, endH, endM, days ->
-                viewModel.addSchedule(scheduleTargetProfileId, startH, startM, endH, endM, days)
+                viewModel.addSchedule(
+                    profileId = scheduleTargetProfileId,
+                    startHour = startH,
+                    startMinute = startM,
+                    endHour = endH,
+                    endMinute = endM,
+                    daysOfWeek = days
+                )
                 showScheduleDialog = false
             }
         )
