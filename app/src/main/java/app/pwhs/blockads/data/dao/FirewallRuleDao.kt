@@ -24,6 +24,12 @@ interface FirewallRuleDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(rule: FirewallRule)
 
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun insertAll(rules: List<FirewallRule>)
+
+    @Query("DELETE FROM firewall_rules WHERE packageName IN (:packageNames)")
+    suspend fun deleteByPackageNames(packageNames: List<String>)
+
     @Update
     suspend fun update(rule: FirewallRule)
 

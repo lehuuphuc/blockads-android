@@ -647,4 +647,8 @@
     <string name="filter_url_domain">Filter URL/Domain</string>
     <string name="add_blocklist_domains_title">Add Blocklisted Domains</string>
     <string name="add_whitelisted_domain_title">Add Whitelisted Domain</string>
+    <string name="disable_all_user_apps">Disable All User Apps</string>
+    <string name="enable_all_user_apps">Enable All User Apps</string>
+    <string name="disable_all_system_apps">Disable All System Apps</string>
+    <string name="enable_all_system_apps">Enable All System Apps</string>
 </resources>

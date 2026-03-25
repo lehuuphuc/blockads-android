@@ -16,14 +16,20 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Android
+import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SecondaryTabRow
@@ -71,6 +77,7 @@ fun FirewallScreen(
     var configurePackage by remember { mutableStateOf<String?>(null) }
     // 0 = All, 1 = Enabled (blocked), 2 = Disabled
     var filterOption by remember { mutableIntStateOf(0) }
+    var showMenuDropdown by remember { mutableStateOf(false) }
 
     val rulesMap = remember(firewallRules) {
         firewallRules.associateBy { it.packageName }
@@ -133,7 +140,63 @@ fun FirewallScreen(
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.background
-                )
+                ),
+                actions = {
+                    IconButton(onClick = { showMenuDropdown = true }) {
+                        Icon(Icons.Default.MoreVert, contentDescription = "More")
+                    }
+                    DropdownMenu(
+                        containerColor = MaterialTheme.colorScheme.background,
+                        expanded = showMenuDropdown,
+                        onDismissRequest = { showMenuDropdown = false }
+                    ) {
+                        val allUserEnabled =
+                            userApps.isNotEmpty() && userApps.all { it.packageName in rulesMap }
+                        val allSystemEnabled =
+                            systemApps.isNotEmpty() && systemApps.all { it.packageName in rulesMap }
+
+                        // User app — toggle all
+                        DropdownMenuItem(
+                            text = {
+                                Text(
+                                    if (allUserEnabled) "Disable All User Apps"
+                                    else "Enable All User Apps"
+                                )
+                            },
+                            onClick = {
+                                showMenuDropdown = false
+                                if (allUserEnabled) viewModel.disableAllUserApps()
+                                else viewModel.enableAllUserApps()
+                            },
+                            leadingIcon = {
+                                Icon(
+                                    Icons.Default.Person,
+                                    contentDescription = null
+                                )
+                            }
+                        )
+                        // System app — toggle all
+                        DropdownMenuItem(
+                            text = {
+                                Text(
+                                    if (allSystemEnabled) "Disable All System Apps"
+                                    else "Enable All System Apps"
+                                )
+                            },
+                            onClick = {
+                                showMenuDropdown = false
+                                if (allSystemEnabled) viewModel.disableAllSystemApps()
+                                else viewModel.enableAllSystemApps()
+                            },
+                            leadingIcon = {
+                                Icon(
+                                    Icons.Default.Android,
+                                    contentDescription = null
+                                )
+                            }
+                        )
+                    }
+                }
             )
         }
     ) { innerPadding ->

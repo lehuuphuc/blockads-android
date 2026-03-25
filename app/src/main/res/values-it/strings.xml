@@ -616,4 +616,8 @@
     <string name="vpn_conflict_title">Connessione Bloccata</string>
     <string name="vpn_conflict_desc">Android consente solo una connessione VPN alla volta. Un\'altra VPN è attualmente attiva sul tuo dispositivo.\n\nScollega prima l\'altra VPN o disattiva \"VPN sempre attiva\" nelle Impostazioni prima di connettere BlockAds.</string>
     <string name="open_settings">Apri Impostazioni</string>
+    <string name="disable_all_user_apps">Disabilita tutte le app utente</string>
+    <string name="enable_all_user_apps">Abilita tutte le app utente</string>
+    <string name="disable_all_system_apps">Disabilita tutte le app di sistema</string>
+    <string name="enable_all_system_apps">Abilita tutte le app di sistema</string>
 </resources>

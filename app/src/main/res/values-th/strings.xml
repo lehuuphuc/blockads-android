@@ -563,4 +563,8 @@
     <string name="vpn_conflict_title">การเชื่อมต่อถูกบล็อก</string>
     <string name="vpn_conflict_desc">Android อนุญาตให้มีการเชื่อมต่อ VPN ได้เพียงครั้งละหนึ่งรายการเท่านั้น ขณะนี้มี VPN อื่นเปิดใช้งานบนอุปกรณ์ของคุณ\n\nโปรดยกเลิกการเชื่อมต่อ VPN อื่นก่อน หรือปิดใช้งาน \"VPN ที่เปิดตลอดเวลา\" ในการตั้งค่าก่อนที่จะเชื่อมต่อ BlockAds</string>
     <string name="open_settings">เปิดการตั้งค่า</string>
+    <string name="disable_all_user_apps">ปิดใช้งานแอปผู้ใช้ทั้งหมด</string>
+    <string name="enable_all_user_apps">เปิดใช้งานแอปผู้ใช้ทั้งหมด</string>
+    <string name="disable_all_system_apps">ปิดใช้งานแอประบบทั้งหมด</string>
+    <string name="enable_all_system_apps">เปิดใช้งานแอประบบทั้งหมด</string>
 </resources>

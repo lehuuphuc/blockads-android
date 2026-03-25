@@ -586,4 +586,8 @@
     <string name="settings_language">Jazyk</string>
     <string name="test_block_ads">Otestovat blokování reklam</string>
     <string name="test_block_ads_title">Test blokování reklam</string>
+    <string name="disable_all_user_apps">Zakázat všechny uživatelské aplikace</string>
+    <string name="enable_all_user_apps">Povolit všechny uživatelské aplikace</string>
+    <string name="disable_all_system_apps">Zakázat všechny systémové aplikace</string>
+    <string name="enable_all_system_apps">Povolit všechny systémové aplikace</string>
 </resources>

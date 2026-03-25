@@ -584,4 +584,8 @@
     <string name="vpn_conflict_title">З\'єднання заблоковано</string>
     <string name="vpn_conflict_desc">Android дозволяє лише одне активне VPN-з\'єднання одночасно. На вашому пристрої зараз працює інший VPN.\n\nБудь ласка, відключіть інший VPN або вимкніть «Постійний VPN» у Налаштуваннях перед підключенням BlockAds.</string>
     <string name="open_settings">Відкрити налаштування</string>
+    <string name="disable_all_user_apps">Вимкнути всі користувацькі програми</string>
+    <string name="enable_all_user_apps">Увімкнути всі користувацькі програми</string>
+    <string name="disable_all_system_apps">Вимкнути всі системні програми</string>
+    <string name="enable_all_system_apps">Увімкнути всі системні програми</string>
 </resources>

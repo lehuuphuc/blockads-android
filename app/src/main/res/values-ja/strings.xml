@@ -560,4 +560,8 @@
     <string name="vpn_conflict_title">接続がブロックされました</string>
     <string name="vpn_conflict_desc">Androidでは同時に1つのVPN接続のみが許可されています。現在、お使いのデバイスで別のVPNがアクティブになっています。\n\nBlockAdsに接続する前に、まず別のVPNを切断するか、設定で「常時接続VPN」を無効にしてください。</string>
     <string name="open_settings">設定を開く</string>
+    <string name="disable_all_user_apps">すべてのユーザーアプリを無効にする</string>
+    <string name="enable_all_user_apps">すべてのユーザーアプリを有効にする</string>
+    <string name="disable_all_system_apps">すべてのシステムアプリを無効にする</string>
+    <string name="enable_all_system_apps">すべてのシステムアプリを有効にする</string>
 </resources>

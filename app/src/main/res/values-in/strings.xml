@@ -590,4 +590,8 @@
     <string name="vpn_conflict_title">Koneksi Diblokir</string>
     <string name="vpn_conflict_desc">Android hanya mengizinkan satu koneksi VPN dalam satu waktu. VPN lain saat ini sedang aktif di perangkat Anda.\n\nHarap putuskan koneksi VPN lain terlebih dahulu atau nonaktifkan \"VPN selalu aktif\" di Pengaturan sebelum menghubungkan BlockAds.</string>
     <string name="open_settings">Buka Pengaturan</string>
+    <string name="disable_all_user_apps">Nonaktifkan Semua Aplikasi Pengguna</string>
+    <string name="enable_all_user_apps">Aktifkan Semua Aplikasi Pengguna</string>
+    <string name="disable_all_system_apps">Nonaktifkan Semua Aplikasi Sistem</string>
+    <string name="enable_all_system_apps">Aktifkan Semua Aplikasi Sistem</string>
 </resources>

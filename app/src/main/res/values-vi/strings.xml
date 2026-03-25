@@ -611,4 +611,8 @@
     <string name="vpn_conflict_title">Kết nối bị chặn</string>
     <string name="vpn_conflict_desc">Android chỉ cho phép một kết nối VPN hoạt động cùng lúc. Một VPN khác đang chạy trên thiết bị của bạn.\n\nVui lòng ngắt kết nối VPN kia hoặc tắt \"VPN luôn bật\" trong Cài đặt trước khi kết nối BlockAds.</string>
     <string name="open_settings">Mở Cài đặt</string>
+    <string name="disable_all_user_apps">Tắt tất cả ứng dụng người dùng</string>
+    <string name="enable_all_user_apps">Bật tất cả ứng dụng người dùng</string>
+    <string name="disable_all_system_apps">Tắt tất cả ứng dụng hệ thống</string>
+    <string name="enable_all_system_apps">Bật tất cả ứng dụng hệ thống</string>
 </resources>

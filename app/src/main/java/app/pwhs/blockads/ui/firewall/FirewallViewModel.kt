@@ -98,4 +98,40 @@ class FirewallViewModel(
             firewallRuleDao.deleteByPackageName(packageName)
         }
     }
+
+    fun enableAllUserApps() {
+        viewModelScope.launch {
+            val userPackages = _installedApps.value
+                .filter { !it.isSystemApp }
+                .map { FirewallRule(packageName = it.packageName) }
+            firewallRuleDao.insertAll(userPackages)
+        }
+    }
+
+    fun disableAllUserApps() {
+        viewModelScope.launch {
+            val userPackages = _installedApps.value
+                .filter { !it.isSystemApp }
+                .map { it.packageName }
+            firewallRuleDao.deleteByPackageNames(userPackages)
+        }
+    }
+
+    fun enableAllSystemApps() {
+        viewModelScope.launch {
+            val systemPackages = _installedApps.value
+                .filter { it.isSystemApp }
+                .map { FirewallRule(packageName = it.packageName) }
+            firewallRuleDao.insertAll(systemPackages)
+        }
+    }
+
+    fun disableAllSystemApps() {
+        viewModelScope.launch {
+            val systemPackages = _installedApps.value
+                .filter { it.isSystemApp }
+                .map { it.packageName }
+            firewallRuleDao.deleteByPackageNames(systemPackages)
+        }
+    }
 }

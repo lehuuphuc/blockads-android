@@ -632,4 +632,8 @@ Desteklenen formatlar:
     <string name="vpn_conflict_title">Bağlantı Engellendi</string>
     <string name="vpn_conflict_desc">Android aynı anda yalnızca bir VPN bağlantısına izin verir. Şu anda cihazınızda başka bir VPN aktif.\n\nBlockAds\'e bağlanmadan önce lütfen diğer VPN\'in bağlantısını kesin veya Ayarlar\'dan \"Her zaman açık VPN\"i devre dışı bırakın.</string>
     <string name="open_settings">Ayarları Aç</string>
+    <string name="disable_all_user_apps">Tüm Kullanıcı Uygulamalarını Devre Dışı Bırak</string>
+    <string name="enable_all_user_apps">Tüm Kullanıcı Uygulamalarını Etkinleştir</string>
+    <string name="disable_all_system_apps">Tüm Sistem Uygulamalarını Devre Dışı Bırak</string>
+    <string name="enable_all_system_apps">Tüm Sistem Uygulamalarını Etkinleştir</string>
 </resources>
