@@ -1,5 +1,4 @@
 <resources>
-    <string name="app_name" translatable="false">BlockAds</string>
     <string name="app_tagline">Ad-Free Browsing</string>
     <string name="notification_channel_name">Ad Blocker Service</string>
     <string name="notification_channel_description">Shows when VPN ad blocker is active</string>
@@ -187,21 +186,6 @@
     <string name="settings_show_bottom_nav_labels_desc">Display text under icons in the bottom navigation</string>
     <string name="settings_theme_dark">Dark</string>
     <string name="settings_lang_system">System</string>
-    <string name="settings_lang_en" translatable="false">English</string>
-    <string name="settings_lang_vi" translatable="false">Tiếng Việt</string>
-    <string name="settings_lang_ja" translatable="false">日本語</string>
-    <string name="settings_lang_ko" translatable="false">한국어</string>
-    <string name="settings_lang_zh" translatable="false">中文</string>
-    <string name="settings_lang_th" translatable="false">ไทย</string>
-    <string name="settings_lang_es" translatable="false">Español</string>
-    <string name="settings_lang_ru" translatable="false">Русский</string>
-    <string name="settings_lang_it" translatable="false">Italiano</string>
-    <string name="settings_lang_ar" translatable="false">العربية</string>
-    <string name="settings_lang_tr" translatable="false">Türkçe</string>
-    <string name="settings_lang_pl" translatable="false">Polski</string>
-    <string name="settings_lang_in" translatable="false">Bahasa Indonesia</string>
-    <string name="settings_lang_pt_br" translatable="false">Português (Brasil)</string>
-    <string name="settings_lang_uk" translatable="false">Українська</string>
     <string name="settings_high_contrast">High Contrast</string>
     <string name="settings_high_contrast_desc">Increase contrast for better visibility</string>
     <string name="settings_accent_color">Accent Color</string>
@@ -247,27 +231,22 @@
     <string name="settings_youtube_restricted_desc">Filter out mature videos on YouTube, block embedded mature videos on other sites, and hide all comments</string>
     <string name="settings_dns_protocol">DNS Protocol</string>
     <string name="settings_dns_protocol_plain">Plain DNS</string>
-    <string name="settings_dns_protocol_doh" translatable="false">DoH</string>
-    <string name="settings_dns_protocol_dot" translatable="false">DoT</string>
-    <string name="settings_dns_protocol_doq" translatable="false">DoQ</string>
+    <string name="settings_dns_protocol_doh">DoH</string>
+    <string name="settings_dns_protocol_dot">DoT</string>
+    <string name="settings_dns_protocol_doq">DoQ</string>
     <string name="settings_doh_server_url">DoH Server URL</string>
-    <string name="settings_doh_url_placeholder" translatable="false">https://dns.google/dns-query</string>
     <string name="settings_save_doh_url">Save DoH URL</string>
     <string name="settings_dot_server">DoT Server (hostname or IP)</string>
     <string name="settings_dot_server_placeholder">dns.google</string>
     <string name="settings_doq_server_url">DoQ Server URL</string>
-    <string name="settings_doq_url_placeholder" translatable="false">quic://dns.adguard-dns.com/dns-query</string>
     <string name="settings_upstream_dns">Upstream DNS Server</string>
-    <string name="settings_upstream_dns_placeholder" translatable="false">8.8.8.8</string>
     <string name="settings_fallback_dns">Fallback DNS Server</string>
-    <string name="settings_fallback_dns_placeholder" translatable="false">1.1.1.1</string>
     <string name="settings_fallback_dns_desc">Fallback DNS is used when your primary DNS server fails. Enter the IP address of a backup DNS server.</string>
     <string name="settings_fallback_dns_short_desc">Used as backup when primary DNS fails</string>
     <string name="dns_error_duplicate">Fallback DNS cannot be the same as Custom DNS</string>
     <string name="dns_category_fallback">Fallback</string>
     <string name="settings_fallback_dns_not_set">Not set (no backup)</string>
     <string name="settings_custom_dns_server">Custom DNS Server</string>
-    <string name="settings_custom_dns_placeholder" translatable="false">8.8.8.8, https://…, tls://…, quic://…</string>
     <string name="settings_custom_dns_hint">Enter IP for Plain DNS, https:// for DoH, tls:// for DoT, or quic:// for DoQ</string>
     <string name="settings_detected_plain">Plain DNS</string>
     <string name="settings_detected_doh">DNS-over-HTTPS (DoH)</string>
@@ -278,9 +257,7 @@
     <string name="settings_save_custom_dns">Save DNS</string>
     <string name="settings_dns_response_type">DNS response type</string>
     <string name="settings_dns_response_type_desc">Response type for blocked domains</string>
-    <string name="dns_response_nxdomain" translatable="false">NXDOMAIN</string>
     <string name="dns_response_nxdomain_desc">Domain does not exist (standard)</string>
-    <string name="dns_response_refused" translatable="false">REFUSED</string>
     <string name="dns_response_refused_desc">Query refused (better compatibility)</string>
     <string name="dns_response_custom_ip">Custom IP (0.0.0.0)</string>
     <string name="dns_response_custom_ip_desc">Return a null route address (default)</string>
