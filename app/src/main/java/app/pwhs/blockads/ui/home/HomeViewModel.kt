@@ -114,11 +114,10 @@ class HomeViewModel(
     }
 
     fun stopVpn(context: Context) {
-        val appPrefs = AppPreferences(context)
-        val mode = runBlocking { appPrefs.routingMode.first() }
-        if (mode == AppPreferences.ROUTING_MODE_ROOT) {
+        if (RootProxyService.isRunning) {
             RootProxyService.stop(context)
-        } else {
+        }
+        if (AdBlockVpnService.isRunning) {
             val intent = Intent(context, AdBlockVpnService::class.java).apply {
                 action = AdBlockVpnService.ACTION_STOP
             }

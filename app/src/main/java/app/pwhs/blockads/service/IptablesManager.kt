@@ -28,7 +28,9 @@ object IptablesManager {
      * permission prompt if it hasn't been granted yet.
      */
     fun isRootAvailable(): Boolean {
-        return Shell.cmd("true").exec().isSuccess
+        // Explicitly trigger 'su' so Magisk/KernelSU shows the permission prompt
+        val result = Shell.cmd("su -c id").exec()
+        return result.isSuccess && result.out.any { it.contains("uid=0") }
     }
 
     /**
