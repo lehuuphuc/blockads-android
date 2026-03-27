@@ -104,6 +104,8 @@ type Engine struct {
 	// Standalone Servers
 	standaloneUdp *dns.Server
 	standaloneTcp *dns.Server
+	standaloneUdp6 *dns.Server
+	standaloneTcp6 *dns.Server
 
 	// Stats
 	totalQueries   atomic.Int64
@@ -404,14 +406,15 @@ func (e *Engine) Stop() {
 	proxy := e.mitmProxy
 	e.mitmProxy = nil
 
-	// Close TUN, shutdown resolver, clear caches — all while locked
+	// Close TUN, clear caches — all while locked
 	if e.tunFile != nil {
 		e.tunFile.Close()
 		e.tunFile = nil
 	}
-	if e.resolver != nil {
-		e.resolver.Shutdown()
-	}
+	
+	oldResolver := e.resolver
+	e.resolver = nil
+	
 	e.safeSearch.ClearCache()
 
 	for _, t := range e.adTries {
@@ -444,17 +447,36 @@ func (e *Engine) Stop() {
 	}
 	e.secBlooms = nil
 
-	if e.standaloneUdp != nil {
-		e.standaloneUdp.Shutdown()
-		e.standaloneUdp = nil
-	}
-	if e.standaloneTcp != nil {
-		e.standaloneTcp.Shutdown()
-		e.standaloneTcp = nil
-	}
+	oldUdp := e.standaloneUdp
+	e.standaloneUdp = nil
+	
+	oldTcp := e.standaloneTcp
+	e.standaloneTcp = nil
+
+	oldUdp6 := e.standaloneUdp6
+	e.standaloneUdp6 = nil
+
+	oldTcp6 := e.standaloneTcp6
+	e.standaloneTcp6 = nil
 
 	e.mu.Unlock()
 
+	// Shutdown servers OUTSIDE the lock to prevent deadlocks with ServeDNS handlers
+	if oldUdp != nil {
+		oldUdp.Shutdown()
+	}
+	if oldTcp != nil {
+		oldTcp.Shutdown()
+	}
+	if oldUdp6 != nil {
+		oldUdp6.Shutdown()
+	}
+	if oldTcp6 != nil {
+		oldTcp6.Shutdown()
+	}
+	if oldResolver != nil {
+		oldResolver.Shutdown()
+	}
 	// Stop proxy OUTSIDE the lock (proxy.Stop() may block briefly)
 	if proxy != nil {
 		proxy.Stop()
@@ -720,19 +742,21 @@ func (e *Engine) standaloneRedirect(w dns.ResponseWriter, r *dns.Msg, redirectDo
 func (e *Engine) StartStandalone(port int) error {
 	e.mu.Lock()
 
-	// If already running, stop everything first to release the port
+	var oldUdp, oldTcp, oldUdp6, oldTcp6 *dns.Server
+	var oldResolver *Resolver
+
+	// If already running, capture pointers to release outside lock
 	if e.running {
-		if e.standaloneUdp != nil {
-			e.standaloneUdp.Shutdown()
-			e.standaloneUdp = nil
-		}
-		if e.standaloneTcp != nil {
-			e.standaloneTcp.Shutdown()
-			e.standaloneTcp = nil
-		}
-		if e.resolver != nil {
-			e.resolver.Shutdown()
-		}
+		oldUdp = e.standaloneUdp
+		e.standaloneUdp = nil
+		oldTcp = e.standaloneTcp
+		e.standaloneTcp = nil
+		oldUdp6 = e.standaloneUdp6
+		e.standaloneUdp6 = nil
+		oldTcp6 = e.standaloneTcp6
+		e.standaloneTcp6 = nil
+		oldResolver = e.resolver
+		e.resolver = nil
 		e.running = false
 	}
 
@@ -746,48 +770,77 @@ func (e *Engine) StartStandalone(port int) error {
 	e.resolver.Configure(ParseProtocol(e.protocol), e.primaryDNS, e.fallbackDNS, e.dohURL)
 	e.mu.Unlock()
 
-	addr := fmt.Sprintf("127.0.0.1:%d", port)
+	// Shutdown old servers outside the lock
+	if oldUdp != nil {
+		oldUdp.Shutdown()
+	}
+	if oldTcp != nil {
+		oldTcp.Shutdown()
+	}
+	if oldUdp6 != nil {
+		oldUdp6.Shutdown()
+	}
+	if oldTcp6 != nil {
+		oldTcp6.Shutdown()
+	}
+	if oldResolver != nil {
+		oldResolver.Shutdown()
+	}
 
-	udpServer := &dns.Server{Addr: addr, Net: "udp", Handler: dns.HandlerFunc(e.ServeDNS)}
-	tcpServer := &dns.Server{Addr: addr, Net: "tcp", Handler: dns.HandlerFunc(e.ServeDNS)}
+	// Bind strictly to IPv4 AND IPv6 loopback separately for maximum security and proxy accuracy
+	addr4 := fmt.Sprintf("127.0.0.1:%d", port)
+	addr6 := fmt.Sprintf("[::1]:%d", port)
+
+	udpServer := &dns.Server{Addr: addr4, Net: "udp", Handler: dns.HandlerFunc(e.ServeDNS)}
+	tcpServer := &dns.Server{Addr: addr4, Net: "tcp", Handler: dns.HandlerFunc(e.ServeDNS)}
+	
+	udpServer6 := &dns.Server{Addr: addr6, Net: "udp6", Handler: dns.HandlerFunc(e.ServeDNS)}
+	tcpServer6 := &dns.Server{Addr: addr6, Net: "tcp6", Handler: dns.HandlerFunc(e.ServeDNS)}
 
 	e.mu.Lock()
 	e.standaloneUdp = udpServer
 	e.standaloneTcp = tcpServer
+	e.standaloneUdp6 = udpServer6
+	e.standaloneTcp6 = tcpServer6
 	e.mu.Unlock()
 
-	udpReady := make(chan error, 1)
-	tcpReady := make(chan error, 1)
+	errChan := make(chan error, 4)
 
 	go func() {
 		if err := udpServer.ListenAndServe(); err != nil {
-			logf("Standalone UDP server stopped: %v", err)
-			udpReady <- err
+			logf("Standalone UDP IPv4 stopped: %v", err)
+			errChan <- err
 		}
 	}()
 	go func() {
 		if err := tcpServer.ListenAndServe(); err != nil {
-			logf("Standalone TCP server stopped: %v", err)
-			tcpReady <- err
+			logf("Standalone TCP IPv4 stopped: %v", err)
+			errChan <- err
+		}
+	}()
+	go func() {
+		if err := udpServer6.ListenAndServe(); err != nil {
+			logf("Standalone UDP IPv6 stopped: %v", err)
+			// IPv6 might fail on v4-only kernels, ignore to prevent crashing the whole engine
+		}
+	}()
+	go func() {
+		if err := tcpServer6.ListenAndServe(); err != nil {
+			logf("Standalone TCP IPv6 stopped: %v", err)
 		}
 	}()
 
 	// Give servers a moment to bind
 	time.Sleep(100 * time.Millisecond)
 
-	// Check if either server failed to start
+	// Check if IPv4 servers failed to start (critical error)
 	select {
-	case err := <-udpReady:
-		return fmt.Errorf("UDP server failed to start: %v", err)
-	default:
-	}
-	select {
-	case err := <-tcpReady:
-		return fmt.Errorf("TCP server failed to start: %v", err)
+	case err := <-errChan:
+		return fmt.Errorf("IPv4 Server failed to start: %v", err)
 	default:
 	}
 
-	logf("Engine started in STANDALONE mode on %s", addr)
+	logf("Engine started in STANDALONE mode on %s and %s", addr4, addr6)
 	return nil
 }
 

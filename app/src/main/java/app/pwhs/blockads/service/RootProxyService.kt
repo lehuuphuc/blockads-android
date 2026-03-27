@@ -155,7 +155,12 @@ class RootProxyService : Service() {
                 goTunnelAdapter.configureSafeSearch(safeSearch, youtubeSafe)
                 goTunnelAdapter.setBlockResponseType(responseType)
                 
-                goTunnelAdapter.startStandalone(port = 15353)
+                val engineStarted = goTunnelAdapter.startStandalone(port = 15353)
+                if (!engineStarted) {
+                    Timber.e("Go engine failed to start standalone mode")
+                    stopProxy()
+                    return@launch
+                }
                 Timber.d("Go engine standalone mode started on :15353")
 
                 // 3. Apply iptables rules
