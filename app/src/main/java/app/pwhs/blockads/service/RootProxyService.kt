@@ -190,32 +190,6 @@ class RootProxyService : Service() {
                     firewallManager = null
                 }
 
-                // Periodically refresh firewall rules
-                launch {
-                    var lastEnabled = firewallEnabled
-                    while (true) {
-                        try {
-                            val currentEnabled = appPrefs.firewallEnabled.first()
-                            if (currentEnabled) {
-                                if (!lastEnabled || firewallManager == null) {
-                                    val fwManager = FirewallManager(this@RootProxyService, firewallRuleDao)
-                                    fwManager.loadRules()
-                                    firewallManager = fwManager
-                                    Timber.d("Firewall re-enabled, rules reloaded")
-                                } else {
-                                    firewallManager?.loadRules()
-                                }
-                            } else {
-                                firewallManager = null
-                            }
-                            lastEnabled = currentEnabled
-                        } catch (e: Exception) {
-                            Timber.e(e, "Error refreshing firewall rules")
-                        }
-                        delay(15_000L)
-                    }
-                }
-
                 val engineStarted = goTunnelAdapter.startStandalone(port = 15353)
                 if (!engineStarted) {
                     Timber.e("Go engine failed to start standalone mode")
