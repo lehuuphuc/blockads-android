@@ -8,7 +8,7 @@
     <string name="vpn_notification_reconnecting">BlockAds se reconnecte</string>
     <string name="vpn_notification_reconnecting_text">Changement de réseau, reconnexion au VPN…</string>
     <string name="vpn_notification_retrying">BlockAds effectue une nouvelle tentative</string>
-    <string name="vpn_notification_retry_text">Tentative de réessai %1 sur %2</string>
+    <string name="vpn_notification_retry_text">Reconnexion de %1$s dans %2$s secondes</string>
     <string name="vpn_alert_channel_name">Alertes VPN</string>
     <string name="vpn_alert_channel_description">Alertes importantes concernant les changements d\'état du VPN</string>
     <string name="vpn_revoked_title">Le blocage des publicités a été désactivé</string>
@@ -233,7 +233,7 @@
     <string name="settings_doq_server_url">URL du serveur DoQ</string>
     <string name="settings_upstream_dns">Serveur DNS en amont</string>
     <string name="settings_fallback_dns">Serveur DNS de secours</string>
-    <string name="settings_fallback_dns_desc">Le DNS de secours est utilisé en cas de défaillance de votre serveur DNS principal. Saisissez l\'adresse IP d'un serveur DNS de secours.</string>
+    <string name="settings_fallback_dns_desc">"Le DNS de secours est utilisé en cas de défaillance de votre serveur DNS principal. Saisissez l'adresse IP d'un serveur DNS de secours."</string>
     <string name="settings_fallback_dns_short_desc">Utilisé comme solution de secours en cas de défaillance du DNS principal</string>
     <string name="dns_error_duplicate">Le DNS de secours ne peut pas être identique au DNS personnalisé</string>
     <string name="dns_category_fallback">Solution de secours</string>
