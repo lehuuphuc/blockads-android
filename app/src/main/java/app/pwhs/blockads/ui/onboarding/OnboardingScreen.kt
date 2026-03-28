@@ -65,6 +65,7 @@ import androidx.core.net.toUri
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import app.pwhs.blockads.R
 import app.pwhs.blockads.ui.onboarding.component.CompletionStep
+import app.pwhs.blockads.ui.onboarding.component.CrashReportingStep
 import app.pwhs.blockads.ui.onboarding.component.DnsServerStep
 import app.pwhs.blockads.ui.onboarding.component.OnboardingPageContent
 import app.pwhs.blockads.ui.onboarding.component.PermissionStep
@@ -266,8 +267,17 @@ fun OnboardingScreen(
                             }
                         }
                     )
+                    // Step 7: Crash Reporting Options
+                    6 -> CrashReportingStep(
+                        onOptInChoiceMade = { isOptIn ->
+                            viewModel.setCrashReportingEnabled(isOptIn)
+                            scope.launch {
+                                pagerState.animateScrollToPage(7)
+                            }
+                        }
+                    )
                     // Completion
-                    6 -> CompletionStep()
+                    7 -> CompletionStep()
                 }
             }
 

@@ -103,36 +103,43 @@
         </receiver>
 
 
-        <!-- Required: set your sentry.io project identifier (DSN) -->
         <meta-data
             android:name="io.sentry.dsn"
             android:value="https://c89904e159a2c44d9ba4b7a2c73ba8aa@o4506280416247808.ingest.us.sentry.io/4506280418279424" />
-        <!-- Add data like request headers, user ip address and device name, see https://docs.sentry.io/platforms/android/data-management/data-collected/ for more info -->
+
         <meta-data
             android:name="io.sentry.send-default-pii"
-            android:value="true" />
+            android:value="false" />
 
-        <!-- enable automatic breadcrumbs for user interactions (clicks, swipes, scrolls) -->
         <meta-data
             android:name="io.sentry.traces.user-interaction.enable"
-            android:value="true" />
-        <!-- enable screenshot for crashes (could contain sensitive/PII data) -->
+            android:value="false" />
+
         <meta-data
             android:name="io.sentry.attach-screenshot"
-            android:value="true" />
-        <!-- enable view hierarchy for crashes -->
+            android:value="false" />
+
         <meta-data
             android:name="io.sentry.attach-view-hierarchy"
             android:value="true" />
 
-        <!-- enable the performance API by setting a sample-rate, adjust in production env -->
         <meta-data
             android:name="io.sentry.traces.sample-rate"
-            android:value="1.0" />
-        <!-- enable Sentry Logs -->
+            android:value="0.1" />
+            
         <meta-data
-            android:name="io.sentry.logs.enabled"
-            android:value="true" />
+            android:name="io.sentry.auto-init"
+            android:value="false" />
+
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
     </application>
 
 </manifest>
