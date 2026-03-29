@@ -102,7 +102,7 @@ improve the app.
    gomobile init
    ```
 
-3. **(Required)** Build the Go tunnel AAR/JAR (with Android 15 16KB page size support):
+3. **(Optional)** Build the Go tunnel AAR/JAR (with Android 15 16KB page size support):
    ```bash
    ./scripts/build_tunnel.sh
    ```

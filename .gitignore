@@ -34,5 +34,3 @@ play-store-key.json
 
 # Sentry Config File
 sentry.properties
-app/libs/tunnel.aar
-app/libs/tunnel-sources.jar
