@@ -54,6 +54,7 @@ class RootProxyService : Service() {
         const val ACTION_STOP = "app.pwhs.blockads.ROOT_STOP"
         const val ACTION_RESTART = "app.pwhs.blockads.ROOT_RESTART"
         const val ACTION_PAUSE_1H = "app.pwhs.blockads.ROOT_PAUSE_1H"
+        const val EXTRA_STARTED_FROM_BOOT = "extra_started_from_boot"
 
         private val _state = kotlinx.coroutines.flow.MutableStateFlow(VpnState.STOPPED)
         val state: kotlinx.coroutines.flow.StateFlow<VpnState> = _state.asStateFlow()
@@ -100,6 +101,7 @@ class RootProxyService : Service() {
     private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private var watchdogJob: Job? = null
     private var notificationUpdateJob: Job? = null
+    private val retryManager = VpnRetryManager(maxRetries = 10, maxDelayMs = 60000L)
 
     @Volatile
     private var todayBlockedCount: Int = 0
@@ -132,6 +134,8 @@ class RootProxyService : Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        val startedFromBoot = intent?.getBooleanExtra(EXTRA_STARTED_FROM_BOOT, false) ?: false
+
         when (intent?.action) {
             ACTION_STOP -> {
                 stopProxy()
@@ -146,13 +150,13 @@ class RootProxyService : Service() {
                 return START_STICKY
             }
             else -> {
-                startProxy()
+                startProxy(startedFromBoot)
                 return START_STICKY
             }
         }
     }
 
-    private fun startProxy() {
+    private fun startProxy(startedFromBoot: Boolean = false) {
         if (_state.value == VpnState.RUNNING || _state.value == VpnState.STARTING) {
             Timber.d("RootProxyService already running/starting")
             return
@@ -173,7 +177,7 @@ class RootProxyService : Service() {
                 val result = filterRepo.loadAllEnabledFilters()
                 Timber.d("Filters loaded for Root Proxy mode: ${result.getOrDefault(0)} domains")
 
-                // 2. Start Go engine in standalone DNS server mode
+                // 2. Setup engine parameters
                 val protocol = appPrefs.dnsProtocol.first().name
                 val primary = appPrefs.upstreamDns.first()
                 val fallback = appPrefs.fallbackDns.first()
@@ -197,21 +201,32 @@ class RootProxyService : Service() {
                     firewallManager = null
                 }
 
-                val engineStarted = goTunnelAdapter.startStandalone(port = 15353)
-                if (!engineStarted) {
-                    Timber.e("Go engine failed to start standalone mode")
-                    stopProxy()
-                    return@launch
-                }
-                Timber.d("Go engine standalone mode started on :15353")
+                // 3. Retry loop for Standalone mode and IPTables setup
+                // This is crucial on boot where Magisk `su` might take a few seconds to become available
+                var proxyStarted = false
+                while (!proxyStarted && retryManager.shouldRetry()) {
+                    val engineStarted = goTunnelAdapter.startStandalone(port = 15353)
+                    if (engineStarted) {
+                        if (IptablesManager.setupRules(this@RootProxyService)) {
+                            proxyStarted = true
+                        } else {
+                            goTunnelAdapter.stop() // stop engine if iptables fails
+                        }
+                    }
 
-                // 3. Apply iptables rules
-                val success = IptablesManager.setupRules(this@RootProxyService)
-                if (!success) {
-                    Timber.e("Failed to apply iptables rules")
+                    if (!proxyStarted && retryManager.shouldRetry()) {
+                         Timber.w("Root Proxy establishment failed, retrying... (${retryManager.getRetryCount()}/${retryManager.getMaxRetries()})")
+                         retryManager.waitForRetry()
+                    }
+                }
+
+                if (!proxyStarted) {
+                    Timber.e("Failed to start Root Proxy after ${retryManager.getMaxRetries()} attempts")
                     stopProxy()
                     return@launch
                 }
+                
+                retryManager.reset()
 
                 _state.value = VpnState.RUNNING
                 startTimestamp = System.currentTimeMillis()

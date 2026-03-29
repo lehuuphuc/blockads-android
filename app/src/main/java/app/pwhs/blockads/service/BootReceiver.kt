@@ -28,19 +28,29 @@ class BootReceiver : BroadcastReceiver() {
 
                 // Root Mode: iptables rules are volatile (cleared on reboot).
                 // Re-apply rules by starting RootProxyService.
-                if (routingMode == AppPreferences.ROUTING_MODE_ROOT && wasEnabled) {
-                    Timber.d("Auto-starting Root Proxy mode after boot")
-                    RootProxyService.start(context)
-                } else if (autoReconnect && wasEnabled) {
-                    Timber.d("Auto-reconnecting VPN after boot")
-                    val serviceIntent = Intent(context, AdBlockVpnService::class.java).apply {
-                        action = AdBlockVpnService.ACTION_START
-                        putExtra(AdBlockVpnService.EXTRA_STARTED_FROM_BOOT, true)
-                    }
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                        context.startForegroundService(serviceIntent)
+                if (autoReconnect && wasEnabled) {
+                    if (routingMode == AppPreferences.ROUTING_MODE_ROOT) {
+                        Timber.d("Auto-starting Root Proxy mode after boot")
+                        val serviceIntent = Intent(context, RootProxyService::class.java).apply {
+                            action = RootProxyService.ACTION_START
+                            putExtra(RootProxyService.EXTRA_STARTED_FROM_BOOT, true)
+                        }
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                            context.startForegroundService(serviceIntent)
+                        } else {
+                            context.startService(serviceIntent)
+                        }
                     } else {
-                        context.startService(serviceIntent)
+                        Timber.d("Auto-reconnecting VPN after boot")
+                        val serviceIntent = Intent(context, AdBlockVpnService::class.java).apply {
+                            action = AdBlockVpnService.ACTION_START
+                            putExtra(AdBlockVpnService.EXTRA_STARTED_FROM_BOOT, true)
+                        }
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                            context.startForegroundService(serviceIntent)
+                        } else {
+                            context.startService(serviceIntent)
+                        }
                     }
                 }
             } catch (e: Exception) {
