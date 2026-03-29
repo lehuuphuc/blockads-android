@@ -92,6 +92,10 @@ func (cm *CertManager) GetDynamicTLSConfigForHost(defaultHost string) *tls.Confi
 			}
 			return cm.getCertificateWithDedup(host)
 		},
+		// Force HTTP/1.1 — our relayHTTP() uses http.ReadRequest/ReadResponse
+		// which only speaks HTTP/1.1. Without this, Chrome negotiates HTTP/2
+		// via ALPN but the proxy sends HTTP/1.1 framing, causing page hangs.
+		NextProtos: []string{"http/1.1"},
 	}
 }
 

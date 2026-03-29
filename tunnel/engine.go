@@ -656,22 +656,45 @@ func (e *Engine) ServeDNS(w dns.ResponseWriter, r *dns.Msg) {
 // lookupIP resolves a domain to an IP address using the Engine's internal resolver.
 // It is used by the MITM proxy to bypass Android's problematic system DNS resolver
 // when the app itself is excluded from the VPN.
+// Uses the full Resolve() pipeline (DoH/DoT/DoQ/Plain + fallback) so it works
+// regardless of the user's chosen DNS protocol.
 func (e *Engine) lookupIP(domain string) (net.IP, error) {
 	e.mu.Lock()
 	resolver := e.resolver
-	primary := e.primaryDNS
 	e.mu.Unlock()
 
 	if resolver == nil {
 		return nil, fmt.Errorf("engine resolver not initialized")
 	}
 
-	// Make sure we have a valid primary server
-	if primary == "" {
-		primary = "8.8.8.8"
+	// Build a DNS A-query
+	msg := new(dns.Msg)
+	msg.SetQuestion(dns.Fqdn(domain), dns.TypeA)
+	msg.RecursionDesired = true
+
+	rawQuery, err := msg.Pack()
+	if err != nil {
+		return nil, fmt.Errorf("pack query: %w", err)
 	}
 
-	return resolver.ResolveARecord(domain, primary)
+	// Use the full Resolve() pipeline (primary + fallback, respects DoH/DoT/DoQ)
+	resp, err := resolver.Resolve(rawQuery)
+	if err != nil {
+		return nil, fmt.Errorf("resolve %s: %w", domain, err)
+	}
+
+	var respMsg dns.Msg
+	if err := respMsg.Unpack(resp); err != nil {
+		return nil, fmt.Errorf("unpack response: %w", err)
+	}
+
+	for _, rr := range respMsg.Answer {
+		if a, ok := rr.(*dns.A); ok {
+			return a.A.To4(), nil
+		}
+	}
+
+	return nil, fmt.Errorf("no A record for %s", domain)
 }
 
 func (e *Engine) standaloneBlock(w dns.ResponseWriter, r *dns.Msg, blockedBy, appName string, startTime time.Time) {

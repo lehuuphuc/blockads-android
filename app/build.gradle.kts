@@ -83,6 +83,12 @@ android {
             isUniversalApk = true
         }
     }
+
+    packaging {
+        resources {
+            excludes += "**/sentry-debug-meta.properties"
+        }
+    }
 }
 
 kotlin {

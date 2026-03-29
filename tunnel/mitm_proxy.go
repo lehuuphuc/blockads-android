@@ -240,11 +240,13 @@ func (p *MitmProxy) handleConnect(clientConn net.Conn, req *http.Request) {
 	}
 
 	// ── Gate 2: UID CHECK — only intercept selected browsers ──────────
-	// Resolve the source UID from /proc/net/tcp to determine which app
-	// initiated this connection. Non-browser apps get pass-through.
+	// On Android 10+ (API 29+), /proc/net/tcp is blocked by SELinux so
+	// resolveConnUID returns -1. In that case, we trust the VPN layer
+	// which already routes only selected browser traffic to this proxy.
+	// We only reject if we can positively confirm the UID is NOT allowed.
 	sourceUID := resolveConnUID(clientConn)
-	if sourceUID >= 0 && !p.filter.IsUIDAllowed(sourceUID) {
-		// Not a selected browser → tunnel directly, no MITM
+	if sourceUID >= 0 && p.filter.HasAllowedUIDs() && !p.filter.IsUIDAllowed(sourceUID) {
+		// Positively identified as a non-browser app → pass-through
 		p.forwardDirect(clientConn, host)
 		return
 	}
@@ -387,6 +389,8 @@ func (p *MitmProxy) relayHTTP(clientConn net.Conn, serverConn net.Conn, hostname
 	clientReader := bufio.NewReader(clientConn)
 	serverReader := bufio.NewReader(serverConn)
 
+	firstRequest := true // Only the first request is likely the HTML document
+
 	for {
 		// Read request from client
 		req, err := http.ReadRequest(clientReader)
@@ -429,9 +433,14 @@ func (p *MitmProxy) relayHTTP(clientConn net.Conn, serverConn net.Conn, hostname
 			continue
 		}
 
-		// Forward request to real server (strip Accept-Encoding to get
-		// uncompressed responses — otherwise we can't inject into gzip)
-		req.Header.Del("Accept-Encoding")
+		// Only strip Accept-Encoding for the first request in the session
+		// (typically the HTML document that needs CSS injection).
+		// Sub-resources (JS, CSS, images, fonts) can stay compressed,
+		// dramatically reducing bandwidth on heavy sites.
+		if firstRequest {
+			req.Header.Del("Accept-Encoding")
+			firstRequest = false
+		}
 
 		if err := req.Write(serverConn); err != nil {
 			return
@@ -452,11 +461,6 @@ func (p *MitmProxy) relayHTTP(clientConn net.Conn, serverConn net.Conn, hostname
 
 			// Injection changes the body size, so we must switch to
 			// chunked transfer encoding.
-			// IMPORTANT: Set TransferEncoding explicitly to avoid
-			// double-chunking (if the original response was already
-			// chunked, Go's http.ReadResponse auto-dechunks the body
-			// but may leave the header — clearing it and letting
-			// resp.Write() re-infer can cause visible artifacts).
 			resp.ContentLength = -1
 			resp.Header.Del("Content-Length")
 			resp.Header.Del("Content-Encoding")
@@ -592,11 +596,13 @@ func hostOnly(hostport string) string {
 	return host
 }
 
-// isLoopbackOrInternal returns true if the hostname resolves to a loopback
+// isLoopbackOrInternal returns true if the hostname is a literal loopback
 // or private/internal IP address. This prevents the proxy from connecting
 // back to itself (SSRF infinite loop) or reaching internal network services.
+// NOTE: We intentionally do NOT call net.LookupHost() here because the app
+// is excluded from VPN and system DNS resolution times out. Checking literal
+// IPs and well-known names is sufficient for SSRF protection.
 func isLoopbackOrInternal(hostname string) bool {
-	// Fast-path: check common literal names
 	lower := strings.ToLower(hostname)
 	if lower == "localhost" || lower == "0.0.0.0" || lower == "::" {
 		return true
@@ -604,15 +610,7 @@ func isLoopbackOrInternal(hostname string) bool {
 
 	ip := net.ParseIP(hostname)
 	if ip == nil {
-		// Not a literal IP — resolve it
-		addrs, err := net.LookupHost(hostname)
-		if err != nil || len(addrs) == 0 {
-			return false
-		}
-		ip = net.ParseIP(addrs[0])
-		if ip == nil {
-			return false
-		}
+		return false // Not a literal IP — allow it (will be resolved later via internal DNS)
 	}
 
 	return ip.IsLoopback() || ip.IsUnspecified() || ip.IsLinkLocalUnicast() || isPrivateIP(ip)

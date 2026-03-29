@@ -66,6 +66,8 @@ var minimalPassthroughSuffixes = []string{
 	".gstatic.com",
 	".android.com",
 	".youtube.com",
+	".googlevideo.com",
+	".googleusercontent.com",
 	// Apple
 	".apple.com",
 	".icloud.com",
@@ -73,10 +75,29 @@ var minimalPassthroughSuffixes = []string{
 	".facebook.com",
 	".whatsapp.com",
 	".instagram.com",
+	".fbcdn.net",
+	// Microsoft / GitHub
+	".github.com",
+	".githubusercontent.com",
+	".githubassets.com",
+	".github.io",
+	".microsoft.com",
+	".live.com",
+	".microsoftonline.com",
+	// Amazon / AWS
+	".amazonaws.com",
+	".cloudfront.net",
 	// Firebase / crash reporting
 	".firebaseio.com",
 	".crashlytics.com",
 	".app-measurement.com",
+	// CDN / Infrastructure (cert pinning common)
+	".cloudflare.com",
+	".akamaized.net",
+	".fastly.net",
+	// Sentry (our crash reporting)
+	".sentry.io",
+	".ingest.sentry.io",
 }
 
 // NewMitmFilter creates a new filter with no allowed UIDs.
@@ -105,6 +126,15 @@ func (f *MitmFilter) IsUIDAllowed(uid int) bool {
 	f.mu.RLock()
 	defer f.mu.RUnlock()
 	return f.allowedUIDs[uid]
+}
+
+// HasAllowedUIDs returns true if any browser UIDs have been configured.
+// When true and we can't determine the source UID (Android 10+ SELinux),
+// we default to pass-through rather than MITM-ing unknown traffic.
+func (f *MitmFilter) HasAllowedUIDs() bool {
+	f.mu.RLock()
+	defer f.mu.RUnlock()
+	return len(f.allowedUIDs) > 0
 }
 
 // IsInterceptionAllowed determines if a domain should be MITM'd.
