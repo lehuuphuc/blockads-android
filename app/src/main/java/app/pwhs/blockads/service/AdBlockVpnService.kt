@@ -173,6 +173,11 @@ class AdBlockVpnService : VpnService() {
     private var networkSwitchJob: Job? = null
     private val networkAvailableFlow = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
 
+    /** WireGuard config JSON with hostname endpoints pre-resolved to IPs.
+     *  Set in [establishVpn] before the VPN routes capture DNS. */
+    @Volatile
+    private var resolvedWgConfigJson: String = ""
+
     private var vpnStartTime: Long = 0L
 
     @Volatile
@@ -474,10 +479,12 @@ class AdBlockVpnService : VpnService() {
                     }
                 }
 
-                // Read routing mode and WireGuard config from preferences
+                // Read routing mode and WireGuard config
+                // Use the pre-resolved config (hostnames→IPs) from establishVpn(),
+                // NOT the raw prefs value which may contain unresolvable hostnames.
                 val routingMode = appPrefs.getRoutingModeSnapshot()
                 val wgConfigJson = if (routingMode == AppPreferences.ROUTING_MODE_WIREGUARD) {
-                    appPrefs.getWgConfigJsonSnapshot() ?: ""
+                    resolvedWgConfigJson.ifEmpty { appPrefs.getWgConfigJsonSnapshot() ?: "" }
                 } else {
                     ""
                 }
@@ -535,7 +542,14 @@ class AdBlockVpnService : VpnService() {
                     val json = runBlocking { appPrefs.getWgConfigJsonSnapshot() }
                     json?.let {
                         try {
-                            WireGuardConfig.fromJson(it)
+                            val parsed = WireGuardConfig.fromJson(it)
+                            // Pre-resolve hostname endpoints BEFORE the VPN is established.
+                            // Once establish() sets 0.0.0.0/0 routes, all DNS goes through
+                            // the TUN — but nobody reads TUN yet → DNS deadlock.
+                            val resolved = resolveWireGuardEndpoints(parsed)
+                            // Store resolved JSON for Go engine (replaces raw prefs value)
+                            resolvedWgConfigJson = resolved.toJson()
+                            resolved
                         } catch (e: Exception) {
                             Timber.e(e, "Failed to parse WireGuard config, falling back to direct")
                             null
@@ -638,6 +652,55 @@ class AdBlockVpnService : VpnService() {
             Timber.e(e, "Error establishing VPN")
             false
         }
+    }
+
+    /**
+     * Pre-resolve any hostname-based WireGuard peer endpoints to IP addresses.
+     *
+     * This MUST be called before [Builder.establish] sets the VPN routes.
+     * Once `0.0.0.0/0` is routed through the TUN, all DNS goes through the
+     * tunnel — but wireguard-go hasn't started yet → DNS deadlock.
+     *
+     * Configs with IP endpoints work fine; only hostnames need resolution.
+     */
+    private fun resolveWireGuardEndpoints(config: WireGuardConfig): WireGuardConfig {
+        val resolvedPeers = config.peers.map { peer ->
+            val endpoint = peer.endpoint ?: return@map peer
+            val parts = endpoint.split(":")
+            if (parts.size != 2) return@map peer
+
+            val host = parts[0]
+            val port = parts[1]
+
+            // Already an IP — no resolution needed
+            try {
+                java.net.InetAddress.getByName(host).also {
+                    if (it.hostAddress == host) return@map peer
+                }
+            } catch (_: Exception) { /* not a valid IP literal, continue to resolve */ }
+
+            // Resolve hostname to IP using system DNS (still available pre-establish)
+            try {
+                val addresses = java.net.InetAddress.getAllByName(host)
+                // Prefer IPv4
+                val resolved = addresses.firstOrNull { it is java.net.Inet4Address }
+                    ?: addresses.firstOrNull()
+
+                if (resolved != null) {
+                    val resolvedEndpoint = "${resolved.hostAddress}:$port"
+                    Timber.d("WireGuard: resolved endpoint $endpoint → $resolvedEndpoint")
+                    peer.copy(endpoint = resolvedEndpoint)
+                } else {
+                    Timber.w("WireGuard: no IPs for $host, using hostname as-is")
+                    peer
+                }
+            } catch (e: Exception) {
+                Timber.w(e, "WireGuard: DNS resolution failed for $host, using as-is")
+                peer
+            }
+        }
+
+        return config.copy(peers = resolvedPeers)
     }
 
     private fun pauseVpn() {
